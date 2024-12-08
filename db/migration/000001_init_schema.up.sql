@@ -5,7 +5,7 @@ CREATE TABLE "users" (
   "email" varchar UNIQUE NOT NULL,
   "role" varchar NOT NULL DEFAULT 'user',
   "photo" varchar NOT NULL DEFAULT 'default-user.jpg',
-  "active" boolean NOT NULL DEFAULT false,
+  "active" boolean NOT NULL DEFAULT true,
   "is_email_verified" boolean NOT NULL DEFAULT false,
   "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "created_at" timestamptz NOT NULL DEFAULT (now())
