@@ -37,4 +37,7 @@ proto:
 		--grpc-gateway_out=proto/gen --grpc-gateway_opt=paths=source_relative \
     proto/*.proto
 
-.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto
+auth:
+	go run cmd/auth/main.go
+
+.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto auth
