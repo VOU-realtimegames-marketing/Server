@@ -31,13 +31,16 @@ sqlc:
 	sqlc generate
 
 proto:
-	rm -f proto/gen/*.go
+	rm -f proto/gen/*/*.go
 	protoc --proto_path=proto --go_out=proto/gen --go_opt=paths=source_relative \
     --go-grpc_out=proto/gen --go-grpc_opt=paths=source_relative \
 		--grpc-gateway_out=proto/gen --grpc-gateway_opt=paths=source_relative \
-    proto/*.proto
+    proto/*/*.proto && ./flatten_gen.sh
 
 auth:
 	go run cmd/auth/main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto auth
+gateway:
+	go run cmd/gateway/main.go
+
+.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto auth gateway

@@ -8,18 +8,13 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type AuthServiceClient struct {
-	Client gen.AuthServiceClient
-}
-
-func NewServiceClient(authSvcUrl string) *AuthServiceClient {
+func NewServiceClient(authSvcUrl string) (gen.AuthServiceClient, error) {
 	conn, err := grpc.NewClient(authSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
-		fmt.Println("Could not connect:", err)
+		return nil, fmt.Errorf("cannot connect to auth service: %w", err)
 	}
 
-	return &AuthServiceClient{
-		Client: gen.NewAuthServiceClient(conn),
-	}
+	client := gen.NewAuthServiceClient(conn)
+	return client, nil
 }

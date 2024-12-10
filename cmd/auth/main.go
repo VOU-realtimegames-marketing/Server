@@ -4,6 +4,7 @@ import (
 	"VOU-Server/cmd/auth/config"
 	db "VOU-Server/db/sqlc"
 	"VOU-Server/internal/auth/gapi"
+	"VOU-Server/internal/pkg/logger"
 	"VOU-Server/proto/gen"
 	"context"
 	"net"
@@ -40,7 +41,7 @@ func runGrpcServer(config config.Config, store db.StoreDB) {
 		log.Fatal().Err(err).Msg("Cannot create serve")
 	}
 
-	grpcLogger := grpc.UnaryInterceptor(gapi.GrpcLogger)
+	grpcLogger := grpc.UnaryInterceptor(logger.GrpcLogger)
 	grpcServer := grpc.NewServer(grpcLogger)
 	gen.RegisterAuthServiceServer(grpcServer, server)
 	reflection.Register(grpcServer)

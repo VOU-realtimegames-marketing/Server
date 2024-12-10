@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package vou.proto.auth;
+
+option go_package = "VOU-Server/proto/gen";
+
+message AuthorizeRequest { string token = 1; }
+
+message AuthorizeResponse {
+  int64 status = 1;
+  string error = 2;
+  int64 username = 3;
+}

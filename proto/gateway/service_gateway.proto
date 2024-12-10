@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package vou.proto.auth;
+
+import "google/api/annotations.proto";
+import "auth/rpc_create_user.proto";
+import "auth/rpc_login_user.proto";
+
+option go_package = "VOU-Server/proto/gen";
+
+service Gateway {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/create_user"
+      body: "*"
+    };
+  }
+  rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/login_user"
+      body: "*"
+    };
+  }
+}
