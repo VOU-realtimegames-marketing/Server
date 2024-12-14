@@ -26,5 +26,10 @@ func NewServer(config config.Config) (*Server, error) {
 }
 
 func (server *Server) CreateUser(ctx context.Context, req *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
+	// server.authClient.Authorize(ctx, &gen.AuthorizeRequest{})
 	return server.authClient.CreateUser(ctx, req)
+}
+
+func (server *Server) LoginUser(ctx context.Context, req *gen.LoginUserRequest) (*gen.LoginUserResponse, error) {
+	return server.authClient.LoginUser(ctx, req)
 }
