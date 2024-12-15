@@ -14,5 +14,6 @@ func convertUser(user db.User) *gen.User {
 		Email:             user.Email,
 		PasswordChangedAt: timestamppb.New(user.PasswordChangedAt),
 		CreatedAt:         timestamppb.New(user.CreatedAt),
+		Role:              user.Role,
 	}
 }

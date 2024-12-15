@@ -11,5 +11,5 @@ option go_package = "VOU-Server/proto/gen";
 service AuthService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
   rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {}
-  rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse) {}
+  rpc AuthorizeUser(AuthorizeRequest) returns (AuthorizeResponse) {}
 }

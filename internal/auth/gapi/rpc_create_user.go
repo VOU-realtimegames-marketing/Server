@@ -12,6 +12,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const (
+	userRole = "user"
+)
+
 func (server *Server) CreateUser(ctx context.Context, req *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
 	violations := validateCreateUserRequest(req)
 	if violations != nil {
@@ -29,6 +33,12 @@ func (server *Server) CreateUser(ctx context.Context, req *gen.CreateUserRequest
 		FullName:       req.GetFullName(),
 		Email:          req.GetEmail(),
 	}
+	if req.GetRole() != "" {
+		arg.Role = req.GetRole()
+	} else {
+		arg.Role = userRole
+	}
+
 	user, err := server.store.CreateUser(ctx, arg)
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolation {

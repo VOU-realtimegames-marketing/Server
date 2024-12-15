@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "VOU-Server/proto/gen";
 
 message LoginUserRequest {
-  string username = 1;
+  string email = 1;
   string password = 2;
 }
 

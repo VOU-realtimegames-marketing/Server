@@ -33,3 +33,8 @@ func (server *Server) CreateUser(ctx context.Context, req *gen.CreateUserRequest
 func (server *Server) LoginUser(ctx context.Context, req *gen.LoginUserRequest) (*gen.LoginUserResponse, error) {
 	return server.authClient.LoginUser(ctx, req)
 }
+
+func (server *Server) AuthorizeUser(ctx context.Context, req *gen.AuthorizeRequest) (*gen.AuthorizeResponse, error) {
+	// server.authClient.Authorize(ctx, &gen.AuthorizeRequest{})
+	return server.authClient.AuthorizeUser(ctx, req)
+}
