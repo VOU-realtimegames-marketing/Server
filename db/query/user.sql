@@ -11,7 +11,8 @@ INSERT INTO users (
 
 -- name: GetUser :one
 SELECT * FROM users
-WHERE email = $1 LIMIT 1;
+WHERE username = sqlc.narg(username)
+  OR email = sqlc.narg(email) LIMIT 1;
 
 -- name: UpdateUser :one
 UPDATE users

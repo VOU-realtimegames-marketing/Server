@@ -1,11 +1,13 @@
 package gapi
 
 import (
+	db "VOU-Server/db/sqlc"
 	"VOU-Server/proto/gen"
 	"context"
 	"fmt"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -42,7 +44,12 @@ func (server *Server) AuthorizeUser(ctx context.Context, req *gen.AuthorizeReque
 		return nil, fmt.Errorf("invalid access token: %s", err)
 	}
 
-	user, err := server.store.GetUser(ctx, payload.Username)
+	user, err := server.store.GetUser(ctx, db.GetUserParams{
+		Username: pgtype.Text{
+			String: payload.Username,
+			Valid:  true,
+		},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("cannot get user: %s", err)
 	}

@@ -4,7 +4,6 @@ import (
 	"VOU-Server/cmd/gateway/config"
 	"VOU-Server/internal/gateway/client/auth"
 	"VOU-Server/proto/gen"
-	"context"
 	"fmt"
 )
 
@@ -23,18 +22,4 @@ func NewServer(config config.Config) (*Server, error) {
 		authClient: authClient,
 	}
 	return server, nil
-}
-
-func (server *Server) CreateUser(ctx context.Context, req *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
-	// server.authClient.Authorize(ctx, &gen.AuthorizeRequest{})
-	return server.authClient.CreateUser(ctx, req)
-}
-
-func (server *Server) LoginUser(ctx context.Context, req *gen.LoginUserRequest) (*gen.LoginUserResponse, error) {
-	return server.authClient.LoginUser(ctx, req)
-}
-
-func (server *Server) AuthorizeUser(ctx context.Context, req *gen.AuthorizeRequest) (*gen.AuthorizeResponse, error) {
-	// server.authClient.Authorize(ctx, &gen.AuthorizeRequest{})
-	return server.authClient.AuthorizeUser(ctx, req)
 }

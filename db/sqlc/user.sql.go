@@ -57,11 +57,17 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 
 const getUser = `-- name: GetUser :one
 SELECT username, hashed_password, full_name, email, role, photo, active, is_email_verified, password_changed_at, created_at FROM users
-WHERE email = $1 LIMIT 1
+WHERE username = $1
+  OR email = $2 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, email)
+type GetUserParams struct {
+	Username pgtype.Text `json:"username"`
+	Email    pgtype.Text `json:"email"`
+}
+
+func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, getUser, arg.Username, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.Username,

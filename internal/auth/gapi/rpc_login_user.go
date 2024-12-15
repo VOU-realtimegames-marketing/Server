@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,7 +21,12 @@ func (server *Server) LoginUser(ctx context.Context, req *gen.LoginUserRequest) 
 		return nil, invalidArgumentError(violations)
 	}
 
-	user, err := server.store.GetUser(ctx, req.GetEmail())
+	user, err := server.store.GetUser(ctx, db.GetUserParams{
+		Email: pgtype.Text{
+			String: req.GetEmail(),
+			Valid:  true,
+		},
+	})
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "user not found")
