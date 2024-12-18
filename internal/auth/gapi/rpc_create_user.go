@@ -62,9 +62,9 @@ func validateCreateUserRequest(req *gen.CreateUserRequest) (violations []*errdet
 		violations = append(violations, fieldViolation("password", err))
 	}
 
-	if err := val.ValidateFullName(req.GetFullName()); err != nil {
-		violations = append(violations, fieldViolation("full_name", err))
-	}
+	// if err := val.ValidateFullName(req.GetFullName()); err != nil {
+	// 	violations = append(violations, fieldViolation("full_name", err))
+	// }
 
 	if err := val.ValidateEmail(req.GetEmail()); err != nil {
 		violations = append(violations, fieldViolation("email", err))
