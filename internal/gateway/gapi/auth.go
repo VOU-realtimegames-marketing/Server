@@ -51,3 +51,7 @@ func (server *Server) AuthorizeUser(ctx context.Context, req *gen.AuthorizeReque
 	// server.authClient.Authorize(ctx, &gen.AuthorizeRequest{})
 	return server.authClient.AuthorizeUser(ctx, req)
 }
+
+func (server *Server) RenewAccessToken(ctx context.Context, req *gen.RenewAccessTokenRequest) (*gen.RenewAccessTokenResponse, error) {
+	return server.authClient.RenewAccessToken(ctx, req)
+}

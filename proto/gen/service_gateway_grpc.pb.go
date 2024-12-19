@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Gateway_CreateUser_FullMethodName    = "/vou.proto.auth.Gateway/CreateUser"
-	Gateway_LoginUser_FullMethodName     = "/vou.proto.auth.Gateway/LoginUser"
-	Gateway_AuthorizeUser_FullMethodName = "/vou.proto.auth.Gateway/AuthorizeUser"
+	Gateway_CreateUser_FullMethodName       = "/vou.proto.auth.Gateway/CreateUser"
+	Gateway_LoginUser_FullMethodName        = "/vou.proto.auth.Gateway/LoginUser"
+	Gateway_AuthorizeUser_FullMethodName    = "/vou.proto.auth.Gateway/AuthorizeUser"
+	Gateway_RenewAccessToken_FullMethodName = "/vou.proto.auth.Gateway/RenewAccessToken"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -31,6 +32,7 @@ type GatewayClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
 	AuthorizeUser(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error)
+	RenewAccessToken(ctx context.Context, in *RenewAccessTokenRequest, opts ...grpc.CallOption) (*RenewAccessTokenResponse, error)
 }
 
 type gatewayClient struct {
@@ -71,6 +73,16 @@ func (c *gatewayClient) AuthorizeUser(ctx context.Context, in *AuthorizeRequest,
 	return out, nil
 }
 
+func (c *gatewayClient) RenewAccessToken(ctx context.Context, in *RenewAccessTokenRequest, opts ...grpc.CallOption) (*RenewAccessTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RenewAccessTokenResponse)
+	err := c.cc.Invoke(ctx, Gateway_RenewAccessToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type GatewayServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
 	AuthorizeUser(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error)
+	RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedGatewayServer) LoginUser(context.Context, *LoginUserRequest) 
 }
 func (UnimplementedGatewayServer) AuthorizeUser(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthorizeUser not implemented")
+}
+func (UnimplementedGatewayServer) RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RenewAccessToken not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 func (UnimplementedGatewayServer) testEmbeddedByValue()                 {}
@@ -172,6 +188,24 @@ func _Gateway_AuthorizeUser_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_RenewAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RenewAccessTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).RenewAccessToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_RenewAccessToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).RenewAccessToken(ctx, req.(*RenewAccessTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AuthorizeUser",
 			Handler:    _Gateway_AuthorizeUser_Handler,
+		},
+		{
+			MethodName: "RenewAccessToken",
+			Handler:    _Gateway_RenewAccessToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

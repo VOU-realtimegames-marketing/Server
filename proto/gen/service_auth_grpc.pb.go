@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_CreateUser_FullMethodName    = "/vou.proto.auth.AuthService/CreateUser"
-	AuthService_LoginUser_FullMethodName     = "/vou.proto.auth.AuthService/LoginUser"
-	AuthService_AuthorizeUser_FullMethodName = "/vou.proto.auth.AuthService/AuthorizeUser"
+	AuthService_CreateUser_FullMethodName       = "/vou.proto.auth.AuthService/CreateUser"
+	AuthService_LoginUser_FullMethodName        = "/vou.proto.auth.AuthService/LoginUser"
+	AuthService_AuthorizeUser_FullMethodName    = "/vou.proto.auth.AuthService/AuthorizeUser"
+	AuthService_RenewAccessToken_FullMethodName = "/vou.proto.auth.AuthService/RenewAccessToken"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -31,6 +32,7 @@ type AuthServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
 	AuthorizeUser(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error)
+	RenewAccessToken(ctx context.Context, in *RenewAccessTokenRequest, opts ...grpc.CallOption) (*RenewAccessTokenResponse, error)
 }
 
 type authServiceClient struct {
@@ -71,6 +73,16 @@ func (c *authServiceClient) AuthorizeUser(ctx context.Context, in *AuthorizeRequ
 	return out, nil
 }
 
+func (c *authServiceClient) RenewAccessToken(ctx context.Context, in *RenewAccessTokenRequest, opts ...grpc.CallOption) (*RenewAccessTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RenewAccessTokenResponse)
+	err := c.cc.Invoke(ctx, AuthService_RenewAccessToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type AuthServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
 	AuthorizeUser(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error)
+	RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedAuthServiceServer) LoginUser(context.Context, *LoginUserReque
 }
 func (UnimplementedAuthServiceServer) AuthorizeUser(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthorizeUser not implemented")
+}
+func (UnimplementedAuthServiceServer) RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RenewAccessToken not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -172,6 +188,24 @@ func _AuthService_AuthorizeUser_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_RenewAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RenewAccessTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).RenewAccessToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_RenewAccessToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).RenewAccessToken(ctx, req.(*RenewAccessTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AuthorizeUser",
 			Handler:    _AuthService_AuthorizeUser_Handler,
+		},
+		{
+			MethodName: "RenewAccessToken",
+			Handler:    _AuthService_RenewAccessToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
