@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createStore = `-- name: CreateStore :one
@@ -65,4 +67,37 @@ func (q *Queries) ListStoresOfOwner(ctx context.Context, owner string) ([]Store,
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateStore = `-- name: UpdateStore :one
+UPDATE stores
+SET
+  name = COALESCE($1,name),
+  business_type = COALESCE($2,business_type)
+WHERE id = $3 and owner = $4
+RETURNING id, owner, name, business_type
+`
+
+type UpdateStoreParams struct {
+	Name         pgtype.Text `json:"name"`
+	BusinessType pgtype.Text `json:"business_type"`
+	ID           int64       `json:"id"`
+	Owner        string      `json:"owner"`
+}
+
+func (q *Queries) UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error) {
+	row := q.db.QueryRow(ctx, updateStore,
+		arg.Name,
+		arg.BusinessType,
+		arg.ID,
+		arg.Owner,
+	)
+	var i Store
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Name,
+		&i.BusinessType,
+	)
+	return i, err
 }

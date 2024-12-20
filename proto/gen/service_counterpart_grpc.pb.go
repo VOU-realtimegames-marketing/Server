@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	CounterpartService_CreateStore_FullMethodName         = "/vou.proto.CounterpartService/CreateStore"
 	CounterpartService_GetAllStoresOfOwner_FullMethodName = "/vou.proto.CounterpartService/GetAllStoresOfOwner"
+	CounterpartService_UpdateStore_FullMethodName         = "/vou.proto.CounterpartService/UpdateStore"
 )
 
 // CounterpartServiceClient is the client API for CounterpartService service.
@@ -29,6 +30,7 @@ const (
 type CounterpartServiceClient interface {
 	CreateStore(ctx context.Context, in *CreateStoreRequest, opts ...grpc.CallOption) (*CreateStoreResponse, error)
 	GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error)
+	UpdateStore(ctx context.Context, in *UpdateStoreRequest, opts ...grpc.CallOption) (*UpdateStoreResponse, error)
 }
 
 type counterpartServiceClient struct {
@@ -59,12 +61,23 @@ func (c *counterpartServiceClient) GetAllStoresOfOwner(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *counterpartServiceClient) UpdateStore(ctx context.Context, in *UpdateStoreRequest, opts ...grpc.CallOption) (*UpdateStoreResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateStoreResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_UpdateStore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CounterpartServiceServer is the server API for CounterpartService service.
 // All implementations must embed UnimplementedCounterpartServiceServer
 // for forward compatibility.
 type CounterpartServiceServer interface {
 	CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error)
 	GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error)
+	UpdateStore(context.Context, *UpdateStoreRequest) (*UpdateStoreResponse, error)
 	mustEmbedUnimplementedCounterpartServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedCounterpartServiceServer) CreateStore(context.Context, *Creat
 }
 func (UnimplementedCounterpartServiceServer) GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllStoresOfOwner not implemented")
+}
+func (UnimplementedCounterpartServiceServer) UpdateStore(context.Context, *UpdateStoreRequest) (*UpdateStoreResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStore not implemented")
 }
 func (UnimplementedCounterpartServiceServer) mustEmbedUnimplementedCounterpartServiceServer() {}
 func (UnimplementedCounterpartServiceServer) testEmbeddedByValue()                            {}
@@ -138,6 +154,24 @@ func _CounterpartService_GetAllStoresOfOwner_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CounterpartService_UpdateStore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CounterpartServiceServer).UpdateStore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CounterpartService_UpdateStore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CounterpartServiceServer).UpdateStore(ctx, req.(*UpdateStoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CounterpartService_ServiceDesc is the grpc.ServiceDesc for CounterpartService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var CounterpartService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllStoresOfOwner",
 			Handler:    _CounterpartService_GetAllStoresOfOwner_Handler,
+		},
+		{
+			MethodName: "UpdateStore",
+			Handler:    _CounterpartService_UpdateStore_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

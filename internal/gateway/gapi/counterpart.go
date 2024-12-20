@@ -3,7 +3,6 @@ package gapi
 import (
 	"VOU-Server/proto/gen"
 	"context"
-	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -38,6 +37,19 @@ func (server *Server) GetAllStoresOfOwner(ctx context.Context, req *gen.GetStore
 	}
 
 	req.Owner = res.User.Username
-	fmt.Println("Owner: ", req.Owner)
 	return server.counterpartClient.GetAllStoresOfOwner(ctx, req)
+}
+
+func (server *Server) UpdateStore(ctx context.Context, req *gen.UpdateStoreRequest) (*gen.UpdateStoreResponse, error) {
+	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	if res.User.Role != counterpartRole {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	req.Owner = res.User.Username
+	return server.counterpartClient.UpdateStore(ctx, req)
 }
