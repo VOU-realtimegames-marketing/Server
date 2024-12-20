@@ -5,7 +5,8 @@ package vou.proto;
 option go_package = "VOU-Server/proto/gen";
 
 message Store {
-  string name = 1;
-  string owner = 2;
-  string business_type = 3;
+  int64 id = 1;
+  string name = 2;
+  string owner = 3;
+  string business_type = 4;
 }

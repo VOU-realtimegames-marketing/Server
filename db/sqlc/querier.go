@@ -16,6 +16,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
+	ListStoresOfOwner(ctx context.Context, owner string) ([]Store, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 

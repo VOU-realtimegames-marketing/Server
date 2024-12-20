@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Gateway_CreateUser_FullMethodName       = "/vou.proto.Gateway/CreateUser"
-	Gateway_LoginUser_FullMethodName        = "/vou.proto.Gateway/LoginUser"
-	Gateway_AuthorizeUser_FullMethodName    = "/vou.proto.Gateway/AuthorizeUser"
-	Gateway_RenewAccessToken_FullMethodName = "/vou.proto.Gateway/RenewAccessToken"
-	Gateway_CreateStore_FullMethodName      = "/vou.proto.Gateway/CreateStore"
+	Gateway_CreateUser_FullMethodName          = "/vou.proto.Gateway/CreateUser"
+	Gateway_LoginUser_FullMethodName           = "/vou.proto.Gateway/LoginUser"
+	Gateway_AuthorizeUser_FullMethodName       = "/vou.proto.Gateway/AuthorizeUser"
+	Gateway_RenewAccessToken_FullMethodName    = "/vou.proto.Gateway/RenewAccessToken"
+	Gateway_CreateStore_FullMethodName         = "/vou.proto.Gateway/CreateStore"
+	Gateway_GetAllStoresOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllStoresOfOwner"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -37,6 +38,7 @@ type GatewayClient interface {
 	RenewAccessToken(ctx context.Context, in *RenewAccessTokenRequest, opts ...grpc.CallOption) (*RenewAccessTokenResponse, error)
 	// BEGIN COUNTERPART
 	CreateStore(ctx context.Context, in *CreateStoreRequest, opts ...grpc.CallOption) (*CreateStoreResponse, error)
+	GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error)
 }
 
 type gatewayClient struct {
@@ -97,6 +99,16 @@ func (c *gatewayClient) CreateStore(ctx context.Context, in *CreateStoreRequest,
 	return out, nil
 }
 
+func (c *gatewayClient) GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStoresOfOwnerResponse)
+	err := c.cc.Invoke(ctx, Gateway_GetAllStoresOfOwner_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility.
@@ -108,6 +120,7 @@ type GatewayServer interface {
 	RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error)
 	// BEGIN COUNTERPART
 	CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error)
+	GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -132,6 +145,9 @@ func (UnimplementedGatewayServer) RenewAccessToken(context.Context, *RenewAccess
 }
 func (UnimplementedGatewayServer) CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateStore not implemented")
+}
+func (UnimplementedGatewayServer) GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllStoresOfOwner not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 func (UnimplementedGatewayServer) testEmbeddedByValue()                 {}
@@ -244,6 +260,24 @@ func _Gateway_CreateStore_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_GetAllStoresOfOwner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStoresOfOwnerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).GetAllStoresOfOwner(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_GetAllStoresOfOwner_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).GetAllStoresOfOwner(ctx, req.(*GetStoresOfOwnerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -270,6 +304,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateStore",
 			Handler:    _Gateway_CreateStore_Handler,
+		},
+		{
+			MethodName: "GetAllStoresOfOwner",
+			Handler:    _Gateway_GetAllStoresOfOwner_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

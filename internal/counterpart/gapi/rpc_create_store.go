@@ -21,6 +21,7 @@ func (server *Server) CreateStore(ctx context.Context, req *gen.CreateStoreReque
 
 	rsp := &gen.CreateStoreResponse{
 		Store: &gen.Store{
+			Id:           store.ID,
 			Name:         store.Name,
 			Owner:        store.Owner,
 			BusinessType: store.BusinessType,

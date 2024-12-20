@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CounterpartService_CreateStore_FullMethodName = "/vou.proto.CounterpartService/CreateStore"
+	CounterpartService_CreateStore_FullMethodName         = "/vou.proto.CounterpartService/CreateStore"
+	CounterpartService_GetAllStoresOfOwner_FullMethodName = "/vou.proto.CounterpartService/GetAllStoresOfOwner"
 )
 
 // CounterpartServiceClient is the client API for CounterpartService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CounterpartServiceClient interface {
 	CreateStore(ctx context.Context, in *CreateStoreRequest, opts ...grpc.CallOption) (*CreateStoreResponse, error)
+	GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error)
 }
 
 type counterpartServiceClient struct {
@@ -47,11 +49,22 @@ func (c *counterpartServiceClient) CreateStore(ctx context.Context, in *CreateSt
 	return out, nil
 }
 
+func (c *counterpartServiceClient) GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStoresOfOwnerResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_GetAllStoresOfOwner_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CounterpartServiceServer is the server API for CounterpartService service.
 // All implementations must embed UnimplementedCounterpartServiceServer
 // for forward compatibility.
 type CounterpartServiceServer interface {
 	CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error)
+	GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error)
 	mustEmbedUnimplementedCounterpartServiceServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedCounterpartServiceServer struct{}
 
 func (UnimplementedCounterpartServiceServer) CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateStore not implemented")
+}
+func (UnimplementedCounterpartServiceServer) GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllStoresOfOwner not implemented")
 }
 func (UnimplementedCounterpartServiceServer) mustEmbedUnimplementedCounterpartServiceServer() {}
 func (UnimplementedCounterpartServiceServer) testEmbeddedByValue()                            {}
@@ -104,6 +120,24 @@ func _CounterpartService_CreateStore_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CounterpartService_GetAllStoresOfOwner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStoresOfOwnerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CounterpartServiceServer).GetAllStoresOfOwner(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CounterpartService_GetAllStoresOfOwner_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CounterpartServiceServer).GetAllStoresOfOwner(ctx, req.(*GetStoresOfOwnerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CounterpartService_ServiceDesc is the grpc.ServiceDesc for CounterpartService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var CounterpartService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateStore",
 			Handler:    _CounterpartService_CreateStore_Handler,
+		},
+		{
+			MethodName: "GetAllStoresOfOwner",
+			Handler:    _CounterpartService_GetAllStoresOfOwner_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

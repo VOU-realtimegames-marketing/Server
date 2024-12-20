@@ -8,8 +8,8 @@ import "auth/rpc_login_user.proto";
 import "auth/rpc_authorize_user.proto";
 import "auth/rpc_renew_access_token.proto";
 
-
 import "counterpart/rpc_create_store.proto";
+import "counterpart/rpc_get_stores_of_owner.proto";
 
 option go_package = "VOU-Server/proto/gen";
 
@@ -45,6 +45,11 @@ service Gateway {
     option (google.api.http) = {
       post: "/api/v1/create_store"
       body: "*"
+    };
+  }
+  rpc GetAllStoresOfOwner(GetStoresOfOwnerRequest) returns (GetStoresOfOwnerResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/stores"
     };
   }
   // END COUNTERPART

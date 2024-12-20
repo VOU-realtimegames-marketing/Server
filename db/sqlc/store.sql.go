@@ -36,3 +36,33 @@ func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store
 	)
 	return i, err
 }
+
+const listStoresOfOwner = `-- name: ListStoresOfOwner :many
+SELECT id, owner, name, business_type FROM stores
+WHERE owner = $1
+`
+
+func (q *Queries) ListStoresOfOwner(ctx context.Context, owner string) ([]Store, error) {
+	rows, err := q.db.Query(ctx, listStoresOfOwner, owner)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Store{}
+	for rows.Next() {
+		var i Store
+		if err := rows.Scan(
+			&i.ID,
+			&i.Owner,
+			&i.Name,
+			&i.BusinessType,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
