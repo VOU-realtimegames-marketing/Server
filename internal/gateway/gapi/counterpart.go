@@ -53,3 +53,17 @@ func (server *Server) UpdateStore(ctx context.Context, req *gen.UpdateStoreReque
 	req.Owner = res.User.Username
 	return server.counterpartClient.UpdateStore(ctx, req)
 }
+
+func (server *Server) DeleteStore(ctx context.Context, req *gen.DeleteStoreRequest) (*gen.DeleteStoreResponse, error) {
+	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	if res.User.Role != counterpartRole {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	req.Owner = res.User.Username
+	return server.counterpartClient.DeleteStore(ctx, req)
+}

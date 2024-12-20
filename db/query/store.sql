@@ -18,3 +18,7 @@ SET
   business_type = COALESCE(sqlc.narg(business_type),business_type)
 WHERE id = sqlc.arg(id) and owner = sqlc.arg(owner)
 RETURNING *;
+
+-- name: DeleteStore :exec
+DELETE FROM stores
+WHERE id = $1 and owner = $2;

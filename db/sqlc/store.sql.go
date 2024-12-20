@@ -39,6 +39,21 @@ func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store
 	return i, err
 }
 
+const deleteStore = `-- name: DeleteStore :exec
+DELETE FROM stores
+WHERE id = $1 and owner = $2
+`
+
+type DeleteStoreParams struct {
+	ID    int64  `json:"id"`
+	Owner string `json:"owner"`
+}
+
+func (q *Queries) DeleteStore(ctx context.Context, arg DeleteStoreParams) error {
+	_, err := q.db.Exec(ctx, deleteStore, arg.ID, arg.Owner)
+	return err
+}
+
 const listStoresOfOwner = `-- name: ListStoresOfOwner :many
 SELECT id, owner, name, business_type FROM stores
 WHERE owner = $1

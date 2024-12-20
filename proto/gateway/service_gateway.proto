@@ -11,6 +11,7 @@ import "auth/rpc_renew_access_token.proto";
 import "counterpart/rpc_create_store.proto";
 import "counterpart/rpc_get_stores_of_owner.proto";
 import "counterpart/rpc_update_store.proto";
+import "counterpart/rpc_delete_store.proto";
 
 option go_package = "VOU-Server/proto/gen";
 
@@ -56,6 +57,12 @@ service Gateway {
   rpc UpdateStore(UpdateStoreRequest) returns (UpdateStoreResponse) {
     option (google.api.http) = {
       patch: "/api/v1/stores/{id}"
+      body: "*"
+    };
+  }
+  rpc DeleteStore(DeleteStoreRequest) returns (DeleteStoreResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/stores/{id}"
       body: "*"
     };
   }
