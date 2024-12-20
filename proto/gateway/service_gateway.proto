@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package vou.proto.auth;
+package vou.proto;
 
 import "google/api/annotations.proto";
 import "auth/rpc_create_user.proto";
@@ -8,9 +8,13 @@ import "auth/rpc_login_user.proto";
 import "auth/rpc_authorize_user.proto";
 import "auth/rpc_renew_access_token.proto";
 
+
+import "counterpart/rpc_create_store.proto";
+
 option go_package = "VOU-Server/proto/gen";
 
 service Gateway {
+  // BEGIN AUTH
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
     option (google.api.http) = {
       post: "/api/v1/create_user"
@@ -34,4 +38,14 @@ service Gateway {
       body: "*"
     };
   }
+  // END AUTH
+
+  // BEGIN COUNTERPART
+  rpc CreateStore(CreateStoreRequest) returns (CreateStoreResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/create_store"
+      body: "*"
+    };
+  }
+  // END COUNTERPART
 }

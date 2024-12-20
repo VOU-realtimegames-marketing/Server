@@ -19,20 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Gateway_CreateUser_FullMethodName       = "/vou.proto.auth.Gateway/CreateUser"
-	Gateway_LoginUser_FullMethodName        = "/vou.proto.auth.Gateway/LoginUser"
-	Gateway_AuthorizeUser_FullMethodName    = "/vou.proto.auth.Gateway/AuthorizeUser"
-	Gateway_RenewAccessToken_FullMethodName = "/vou.proto.auth.Gateway/RenewAccessToken"
+	Gateway_CreateUser_FullMethodName       = "/vou.proto.Gateway/CreateUser"
+	Gateway_LoginUser_FullMethodName        = "/vou.proto.Gateway/LoginUser"
+	Gateway_AuthorizeUser_FullMethodName    = "/vou.proto.Gateway/AuthorizeUser"
+	Gateway_RenewAccessToken_FullMethodName = "/vou.proto.Gateway/RenewAccessToken"
+	Gateway_CreateStore_FullMethodName      = "/vou.proto.Gateway/CreateStore"
 )
 
 // GatewayClient is the client API for Gateway service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GatewayClient interface {
+	// BEGIN AUTH
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
 	AuthorizeUser(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error)
 	RenewAccessToken(ctx context.Context, in *RenewAccessTokenRequest, opts ...grpc.CallOption) (*RenewAccessTokenResponse, error)
+	// BEGIN COUNTERPART
+	CreateStore(ctx context.Context, in *CreateStoreRequest, opts ...grpc.CallOption) (*CreateStoreResponse, error)
 }
 
 type gatewayClient struct {
@@ -83,14 +87,27 @@ func (c *gatewayClient) RenewAccessToken(ctx context.Context, in *RenewAccessTok
 	return out, nil
 }
 
+func (c *gatewayClient) CreateStore(ctx context.Context, in *CreateStoreRequest, opts ...grpc.CallOption) (*CreateStoreResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateStoreResponse)
+	err := c.cc.Invoke(ctx, Gateway_CreateStore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility.
 type GatewayServer interface {
+	// BEGIN AUTH
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
 	AuthorizeUser(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error)
 	RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error)
+	// BEGIN COUNTERPART
+	CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -112,6 +129,9 @@ func (UnimplementedGatewayServer) AuthorizeUser(context.Context, *AuthorizeReque
 }
 func (UnimplementedGatewayServer) RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RenewAccessToken not implemented")
+}
+func (UnimplementedGatewayServer) CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateStore not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 func (UnimplementedGatewayServer) testEmbeddedByValue()                 {}
@@ -206,11 +226,29 @@ func _Gateway_RenewAccessToken_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_CreateStore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateStoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).CreateStore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_CreateStore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).CreateStore(ctx, req.(*CreateStoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Gateway_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "vou.proto.auth.Gateway",
+	ServiceName: "vou.proto.Gateway",
 	HandlerType: (*GatewayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -228,6 +266,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RenewAccessToken",
 			Handler:    _Gateway_RenewAccessToken_Handler,
+		},
+		{
+			MethodName: "CreateStore",
+			Handler:    _Gateway_CreateStore_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -8,9 +8,7 @@ import (
 // The values are read by viper from a config file or environment variables
 type Config struct {
 	Environment              string `mapstructure:"ENVIRONMENT"`
-	HTTPServerAddress        string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	GRPCServerAddress        string `mapstructure:"GRPC_SERVER_ADDRESS"`
-	AuthServerAddress        string `mapstructure:"AUTH_SERVER_ADDRESS"`
+	DBSource                 string `mapstructure:"DB_SOURCE"`
 	CounterpartServerAddress string `mapstructure:"COUNTERPART_SERVER_ADDRESS"`
 }
 

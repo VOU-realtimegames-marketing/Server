@@ -40,7 +40,10 @@ proto:
 auth:
 	go run cmd/auth/main.go
 
+counterpart:
+	go run cmd/counterpart/main.go
+
 gateway:
 	go run cmd/gateway/main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto auth gateway
+.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto auth counterpart gateway
