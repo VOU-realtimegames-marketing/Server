@@ -7,6 +7,10 @@ import "counterpart/rpc_get_stores_of_owner.proto";
 import "counterpart/rpc_update_store.proto";
 import "counterpart/rpc_delete_store.proto";
 
+import "counterpart/rpc_create_branch.proto";
+import "counterpart/rpc_get_branchs.proto";
+import "counterpart/rpc_delete_branch.proto";
+
 option go_package = "VOU-Server/proto/gen";
 
 service CounterpartService {
@@ -14,4 +18,8 @@ service CounterpartService {
   rpc GetAllStoresOfOwner(GetStoresOfOwnerRequest) returns (GetStoresOfOwnerResponse) {}
   rpc UpdateStore(UpdateStoreRequest) returns (UpdateStoreResponse) {}
   rpc DeleteStore(DeleteStoreRequest) returns (DeleteStoreResponse) {}
+
+  rpc CreateBranch(CreateBranchRequest) returns (CreateBranchResponse) {}
+  rpc GetBranchs(GetBranchsRequest) returns (GetBranchsResponse) {}
+  rpc DeleteBranch(DeleteBranchRequest) returns (DeleteBranchResponse) {}
 }

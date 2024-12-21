@@ -58,7 +58,11 @@ CREATE TABLE "branchs" (
   "id" bigserial PRIMARY KEY,
   "store_id" bigint NOT NULL,
   "name" varchar NOT NULL,
-  "location" varchar NOT NULL
+  "position" varchar NOT NULL,
+  "city_name" varchar NOT NULL,
+  "country" varchar NOT NULL,
+  "address" varchar NOT NULL,
+  "emoji" varchar NOT NULL
 );
 
 CREATE TABLE "games" (

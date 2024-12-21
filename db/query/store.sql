@@ -11,6 +11,10 @@ INSERT INTO stores (
 SELECT * FROM stores
 WHERE owner = $1;
 
+-- name: GetStoreByIdAndOwner :one
+SELECT * FROM stores
+WHERE id = $1 and owner = $2 LIMIT 1;
+
 -- name: UpdateStore :one
 UPDATE stores
 SET

@@ -15,7 +15,11 @@ type Branch struct {
 	ID       int64  `json:"id"`
 	StoreID  int64  `json:"store_id"`
 	Name     string `json:"name"`
-	Location string `json:"location"`
+	Position string `json:"position"`
+	CityName string `json:"city_name"`
+	Country  string `json:"country"`
+	Address  string `json:"address"`
+	Emoji    string `json:"emoji"`
 }
 
 type Event struct {

@@ -11,12 +11,16 @@ import (
 )
 
 type Querier interface {
+	CreateBranch(ctx context.Context, arg CreateBranchParams) (Branch, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteBranch(ctx context.Context, id int64) error
 	DeleteStore(ctx context.Context, arg DeleteStoreParams) error
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
+	GetStoreByIdAndOwner(ctx context.Context, arg GetStoreByIdAndOwnerParams) (Store, error)
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
+	ListBranchs(ctx context.Context, storeID int64) ([]Branch, error)
 	ListStoresOfOwner(ctx context.Context, owner string) ([]Store, error)
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)

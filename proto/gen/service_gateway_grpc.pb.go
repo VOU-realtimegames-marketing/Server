@@ -27,6 +27,9 @@ const (
 	Gateway_GetAllStoresOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllStoresOfOwner"
 	Gateway_UpdateStore_FullMethodName         = "/vou.proto.Gateway/UpdateStore"
 	Gateway_DeleteStore_FullMethodName         = "/vou.proto.Gateway/DeleteStore"
+	Gateway_CreateBranch_FullMethodName        = "/vou.proto.Gateway/CreateBranch"
+	Gateway_GetBranchs_FullMethodName          = "/vou.proto.Gateway/GetBranchs"
+	Gateway_DeleteBranch_FullMethodName        = "/vou.proto.Gateway/DeleteBranch"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -43,6 +46,9 @@ type GatewayClient interface {
 	GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error)
 	UpdateStore(ctx context.Context, in *UpdateStoreRequest, opts ...grpc.CallOption) (*UpdateStoreResponse, error)
 	DeleteStore(ctx context.Context, in *DeleteStoreRequest, opts ...grpc.CallOption) (*DeleteStoreResponse, error)
+	CreateBranch(ctx context.Context, in *CreateBranchRequest, opts ...grpc.CallOption) (*CreateBranchResponse, error)
+	GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error)
+	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
 }
 
 type gatewayClient struct {
@@ -133,6 +139,36 @@ func (c *gatewayClient) DeleteStore(ctx context.Context, in *DeleteStoreRequest,
 	return out, nil
 }
 
+func (c *gatewayClient) CreateBranch(ctx context.Context, in *CreateBranchRequest, opts ...grpc.CallOption) (*CreateBranchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateBranchResponse)
+	err := c.cc.Invoke(ctx, Gateway_CreateBranch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayClient) GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBranchsResponse)
+	err := c.cc.Invoke(ctx, Gateway_GetBranchs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayClient) DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBranchResponse)
+	err := c.cc.Invoke(ctx, Gateway_DeleteBranch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility.
@@ -147,6 +183,9 @@ type GatewayServer interface {
 	GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error)
 	UpdateStore(context.Context, *UpdateStoreRequest) (*UpdateStoreResponse, error)
 	DeleteStore(context.Context, *DeleteStoreRequest) (*DeleteStoreResponse, error)
+	CreateBranch(context.Context, *CreateBranchRequest) (*CreateBranchResponse, error)
+	GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error)
+	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -180,6 +219,15 @@ func (UnimplementedGatewayServer) UpdateStore(context.Context, *UpdateStoreReque
 }
 func (UnimplementedGatewayServer) DeleteStore(context.Context, *DeleteStoreRequest) (*DeleteStoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteStore not implemented")
+}
+func (UnimplementedGatewayServer) CreateBranch(context.Context, *CreateBranchRequest) (*CreateBranchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBranch not implemented")
+}
+func (UnimplementedGatewayServer) GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBranchs not implemented")
+}
+func (UnimplementedGatewayServer) DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBranch not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 func (UnimplementedGatewayServer) testEmbeddedByValue()                 {}
@@ -346,6 +394,60 @@ func _Gateway_DeleteStore_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_CreateBranch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBranchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).CreateBranch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_CreateBranch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).CreateBranch(ctx, req.(*CreateBranchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Gateway_GetBranchs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBranchsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).GetBranchs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_GetBranchs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).GetBranchs(ctx, req.(*GetBranchsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Gateway_DeleteBranch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBranchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).DeleteBranch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_DeleteBranch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).DeleteBranch(ctx, req.(*DeleteBranchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -384,6 +486,18 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteStore",
 			Handler:    _Gateway_DeleteStore_Handler,
+		},
+		{
+			MethodName: "CreateBranch",
+			Handler:    _Gateway_CreateBranch_Handler,
+		},
+		{
+			MethodName: "GetBranchs",
+			Handler:    _Gateway_GetBranchs_Handler,
+		},
+		{
+			MethodName: "DeleteBranch",
+			Handler:    _Gateway_DeleteBranch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

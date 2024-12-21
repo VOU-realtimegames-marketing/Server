@@ -23,6 +23,9 @@ const (
 	CounterpartService_GetAllStoresOfOwner_FullMethodName = "/vou.proto.CounterpartService/GetAllStoresOfOwner"
 	CounterpartService_UpdateStore_FullMethodName         = "/vou.proto.CounterpartService/UpdateStore"
 	CounterpartService_DeleteStore_FullMethodName         = "/vou.proto.CounterpartService/DeleteStore"
+	CounterpartService_CreateBranch_FullMethodName        = "/vou.proto.CounterpartService/CreateBranch"
+	CounterpartService_GetBranchs_FullMethodName          = "/vou.proto.CounterpartService/GetBranchs"
+	CounterpartService_DeleteBranch_FullMethodName        = "/vou.proto.CounterpartService/DeleteBranch"
 )
 
 // CounterpartServiceClient is the client API for CounterpartService service.
@@ -33,6 +36,9 @@ type CounterpartServiceClient interface {
 	GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error)
 	UpdateStore(ctx context.Context, in *UpdateStoreRequest, opts ...grpc.CallOption) (*UpdateStoreResponse, error)
 	DeleteStore(ctx context.Context, in *DeleteStoreRequest, opts ...grpc.CallOption) (*DeleteStoreResponse, error)
+	CreateBranch(ctx context.Context, in *CreateBranchRequest, opts ...grpc.CallOption) (*CreateBranchResponse, error)
+	GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error)
+	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
 }
 
 type counterpartServiceClient struct {
@@ -83,6 +89,36 @@ func (c *counterpartServiceClient) DeleteStore(ctx context.Context, in *DeleteSt
 	return out, nil
 }
 
+func (c *counterpartServiceClient) CreateBranch(ctx context.Context, in *CreateBranchRequest, opts ...grpc.CallOption) (*CreateBranchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateBranchResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_CreateBranch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *counterpartServiceClient) GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBranchsResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_GetBranchs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *counterpartServiceClient) DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBranchResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_DeleteBranch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CounterpartServiceServer is the server API for CounterpartService service.
 // All implementations must embed UnimplementedCounterpartServiceServer
 // for forward compatibility.
@@ -91,6 +127,9 @@ type CounterpartServiceServer interface {
 	GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error)
 	UpdateStore(context.Context, *UpdateStoreRequest) (*UpdateStoreResponse, error)
 	DeleteStore(context.Context, *DeleteStoreRequest) (*DeleteStoreResponse, error)
+	CreateBranch(context.Context, *CreateBranchRequest) (*CreateBranchResponse, error)
+	GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error)
+	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
 	mustEmbedUnimplementedCounterpartServiceServer()
 }
 
@@ -112,6 +151,15 @@ func (UnimplementedCounterpartServiceServer) UpdateStore(context.Context, *Updat
 }
 func (UnimplementedCounterpartServiceServer) DeleteStore(context.Context, *DeleteStoreRequest) (*DeleteStoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteStore not implemented")
+}
+func (UnimplementedCounterpartServiceServer) CreateBranch(context.Context, *CreateBranchRequest) (*CreateBranchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBranch not implemented")
+}
+func (UnimplementedCounterpartServiceServer) GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBranchs not implemented")
+}
+func (UnimplementedCounterpartServiceServer) DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBranch not implemented")
 }
 func (UnimplementedCounterpartServiceServer) mustEmbedUnimplementedCounterpartServiceServer() {}
 func (UnimplementedCounterpartServiceServer) testEmbeddedByValue()                            {}
@@ -206,6 +254,60 @@ func _CounterpartService_DeleteStore_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CounterpartService_CreateBranch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBranchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CounterpartServiceServer).CreateBranch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CounterpartService_CreateBranch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CounterpartServiceServer).CreateBranch(ctx, req.(*CreateBranchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CounterpartService_GetBranchs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBranchsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CounterpartServiceServer).GetBranchs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CounterpartService_GetBranchs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CounterpartServiceServer).GetBranchs(ctx, req.(*GetBranchsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CounterpartService_DeleteBranch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBranchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CounterpartServiceServer).DeleteBranch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CounterpartService_DeleteBranch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CounterpartServiceServer).DeleteBranch(ctx, req.(*DeleteBranchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CounterpartService_ServiceDesc is the grpc.ServiceDesc for CounterpartService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +330,18 @@ var CounterpartService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteStore",
 			Handler:    _CounterpartService_DeleteStore_Handler,
+		},
+		{
+			MethodName: "CreateBranch",
+			Handler:    _CounterpartService_CreateBranch_Handler,
+		},
+		{
+			MethodName: "GetBranchs",
+			Handler:    _CounterpartService_GetBranchs_Handler,
+		},
+		{
+			MethodName: "DeleteBranch",
+			Handler:    _CounterpartService_DeleteBranch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

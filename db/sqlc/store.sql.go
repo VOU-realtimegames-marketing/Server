@@ -54,6 +54,28 @@ func (q *Queries) DeleteStore(ctx context.Context, arg DeleteStoreParams) error 
 	return err
 }
 
+const getStoreByIdAndOwner = `-- name: GetStoreByIdAndOwner :one
+SELECT id, owner, name, business_type FROM stores
+WHERE id = $1 and owner = $2 LIMIT 1
+`
+
+type GetStoreByIdAndOwnerParams struct {
+	ID    int64  `json:"id"`
+	Owner string `json:"owner"`
+}
+
+func (q *Queries) GetStoreByIdAndOwner(ctx context.Context, arg GetStoreByIdAndOwnerParams) (Store, error) {
+	row := q.db.QueryRow(ctx, getStoreByIdAndOwner, arg.ID, arg.Owner)
+	var i Store
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Name,
+		&i.BusinessType,
+	)
+	return i, err
+}
+
 const listStoresOfOwner = `-- name: ListStoresOfOwner :many
 SELECT id, owner, name, business_type FROM stores
 WHERE owner = $1
