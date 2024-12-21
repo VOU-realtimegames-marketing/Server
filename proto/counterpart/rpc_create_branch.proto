@@ -14,6 +14,7 @@ message CreateBranchRequest {
   string country = 5;
   string address = 6;
   string emoji = 7;
+  string owner = 8;
 }
 
 message CreateBranchResponse {

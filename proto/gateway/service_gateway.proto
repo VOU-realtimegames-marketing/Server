@@ -79,7 +79,7 @@ service Gateway {
   }
   rpc GetBranchs(GetBranchsRequest) returns (GetBranchsResponse) {
     option (google.api.http) = {
-      get: "/api/v1/branches"
+      get: "/api/v1/stores/{store_id}/branches"
     };
   }
   rpc DeleteBranch(DeleteBranchRequest) returns (DeleteBranchResponse) {

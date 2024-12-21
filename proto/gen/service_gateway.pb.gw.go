@@ -335,19 +335,25 @@ func local_request_Gateway_CreateBranch_0(ctx context.Context, marshaler runtime
 
 }
 
-var (
-	filter_Gateway_GetBranchs_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
-
 func request_Gateway_GetBranchs_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetBranchsRequest
 	var metadata runtime.ServerMetadata
 
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["store_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "store_id")
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_GetBranchs_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+
+	protoReq.StoreId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "store_id", err)
 	}
 
 	msg, err := client.GetBranchs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -359,11 +365,21 @@ func local_request_Gateway_GetBranchs_0(ctx context.Context, marshaler runtime.M
 	var protoReq GetBranchsRequest
 	var metadata runtime.ServerMetadata
 
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["store_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "store_id")
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_GetBranchs_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+
+	protoReq.StoreId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "store_id", err)
 	}
 
 	msg, err := server.GetBranchs(ctx, &protoReq)
@@ -671,7 +687,7 @@ func RegisterGatewayHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/vou.proto.Gateway/GetBranchs", runtime.WithHTTPPathPattern("/api/v1/branches"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/vou.proto.Gateway/GetBranchs", runtime.WithHTTPPathPattern("/api/v1/stores/{store_id}/branches"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -958,7 +974,7 @@ func RegisterGatewayHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/vou.proto.Gateway/GetBranchs", runtime.WithHTTPPathPattern("/api/v1/branches"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/vou.proto.Gateway/GetBranchs", runtime.WithHTTPPathPattern("/api/v1/stores/{store_id}/branches"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1018,7 +1034,7 @@ var (
 
 	pattern_Gateway_CreateBranch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "create_branch"}, ""))
 
-	pattern_Gateway_GetBranchs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "branches"}, ""))
+	pattern_Gateway_GetBranchs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "stores", "store_id", "branches"}, ""))
 
 	pattern_Gateway_DeleteBranch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "branches", "id"}, ""))
 )

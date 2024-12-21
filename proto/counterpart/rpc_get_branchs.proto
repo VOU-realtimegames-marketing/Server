@@ -7,7 +7,7 @@ import "counterpart/branch.proto";
 option go_package = "VOU-Server/proto/gen";
 
 message GetBranchsRequest {
-  string store_id = 1;
+  int64 store_id = 1;
 }
 
 message GetBranchsResponse {
