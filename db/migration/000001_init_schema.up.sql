@@ -58,7 +58,7 @@ CREATE TABLE "branchs" (
   "id" bigserial PRIMARY KEY,
   "store_id" bigint NOT NULL,
   "name" varchar NOT NULL,
-  "position" varchar NOT NULL,
+  "position" varchar UNIQUE NOT NULL,
   "city_name" varchar NOT NULL,
   "country" varchar NOT NULL,
   "address" varchar NOT NULL,
@@ -102,6 +102,8 @@ CREATE INDEX ON "transfer_voucher" ("from", "to");
 CREATE INDEX ON "voucher_owner" ("username");
 
 CREATE INDEX ON "stores" ("owner");
+
+CREATE UNIQUE INDEX ON "branchs" ("store_id", "name");
 
 ALTER TABLE "verify_emails" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
 
