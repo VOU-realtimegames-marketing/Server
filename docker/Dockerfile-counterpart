@@ -1,0 +1,23 @@
+# Build stage
+FROM golang:1.23-alpine3.20 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o counterpart-service ./cmd/counterpart/main.go
+
+# Use a smaller base image for the final image
+FROM alpine:3.20
+WORKDIR /app
+COPY --from=builder /app/counterpart-service .
+COPY cmd/counterpart/config/app.env ./config/
+
+# Expose the port the service runs on
+EXPOSE 50052
+
+# Command to run the executable
+CMD ["/app/counterpart-service"]
+
+# docker build -t counterpart-service:latest -f docker/Dockerfile-counterpart .
+# docker run --name counterpart -p 50052:50052 counterpart-service:latest
+# docker run --name counterpart --network vou-network -p 50052:50052 counterpart-service:latest

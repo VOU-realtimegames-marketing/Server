@@ -12,6 +12,8 @@ services:
       retries: 5
     ports:
       - "5432:5432"
+    volumes:
+      - data-volume:/var/lib/postgresql/data
   auth:
     build: 
       context: .
@@ -23,3 +25,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  counterpart:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-counterpart
+    ports:
+      - "50052:50052"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+  gateway:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-gateway
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - AUTH_SERVER_ADDRESS=auth:50051
+      - COUNTERPART_SERVER_ADDRESS=counterpart:50052
+    depends_on:
+      - auth
+      - counterpart
+volumes:
+  data-volume:
