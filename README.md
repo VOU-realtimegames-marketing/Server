@@ -10,6 +10,9 @@ VOU Microservices
 
 ## Getting Started
 
+### Automatic startup
+- `docker compose up --build`
+
 ### Manual
 
 Follow these steps to setup the development server:
