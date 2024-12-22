@@ -10,6 +10,9 @@ import (
 	"net"
 	"os"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -18,7 +21,7 @@ import (
 )
 
 func main() {
-	config, err := config.LoadConfig("./cmd/auth/config")
+	config, err := config.LoadConfig("./config")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to load config")
 	}
@@ -31,8 +34,23 @@ func main() {
 		log.Fatal().Err(err).Msg("Cannot connect to DB")
 	}
 
+	runDBMigration(config.MigrationURL, config.DBSource) // Uncomment this line when running docker-compose up
+
 	store := db.NewStore(connPool)
 	runGrpcServer(config, store)
+}
+
+func runDBMigration(migrationURL string, dbSource string) {
+	migration, err := migrate.New(migrationURL, dbSource)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Cannot create new migrate instance")
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal().Err(err).Msg("failed to run migrate up")
+	}
+
+	log.Info().Msg("db migrated successfully")
 }
 
 func runGrpcServer(config config.Config, store db.StoreDB) {

@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=vou-marketing
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d vou-marketing"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+  auth:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-auth
+    ports:
+      - "50051:50051"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy

@@ -38,12 +38,12 @@ proto:
     proto/*/*.proto && ./flatten_gen.sh
 
 auth:
-	go run cmd/auth/main.go
+	cd cmd/auth && go run main.go
 
 counterpart:
-	go run cmd/counterpart/main.go
+	cd cmd/counterpart && go run main.go
 
 gateway:
-	go run cmd/gateway/main.go
+	cd cmd/gateway && go run main.go
 
 .PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto auth counterpart gateway

@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	config, err := config.LoadConfig("./cmd/counterpart/config")
+	config, err := config.LoadConfig("./config")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to load config")
 	}

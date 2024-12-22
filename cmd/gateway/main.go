@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	config, err := config.LoadConfig("./cmd/gateway/config")
+	config, err := config.LoadConfig("./config")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot load config")
 	}
