@@ -4,6 +4,8 @@ import (
 	"VOU-Server/cmd/auth/config"
 	db "VOU-Server/db/sqlc"
 	"VOU-Server/internal/auth/gapi"
+	"VOU-Server/internal/auth/mail"
+	"VOU-Server/internal/auth/worker"
 	"VOU-Server/internal/pkg/logger"
 	"VOU-Server/proto/gen"
 	"context"
@@ -13,6 +15,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -34,10 +37,18 @@ func main() {
 		log.Fatal().Err(err).Msg("Cannot connect to DB")
 	}
 
-	runDBMigration(config.MigrationURL, config.DBSource) // Uncomment this line when running docker-compose up
+	// runDBMigration(config.MigrationURL, config.DBSource) // Uncomment this line when running docker-compose up
 
 	store := db.NewStore(connPool)
-	runGrpcServer(config, store)
+
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+
+	go runTaskProcessor(config, redisOpt, store)
+	runGrpcServer(config, store, taskDistributor)
 }
 
 func runDBMigration(migrationURL string, dbSource string) {
@@ -53,10 +64,20 @@ func runDBMigration(migrationURL string, dbSource string) {
 	log.Info().Msg("db migrated successfully")
 }
 
-func runGrpcServer(config config.Config, store db.StoreDB) {
-	server, err := gapi.NewServer(config, store)
+func runTaskProcessor(config config.Config, redisOpt asynq.RedisClientOpt, store db.StoreDB) {
+	mailer := mail.NewGmailSender(config.EmailSenderName, config.EmailSenderAddress, config.EmailSenderPassword)
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
+	log.Info().Msg("start task processor")
+	err := taskProcessor.Start()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot create serve")
+		log.Fatal().Err(err).Msg("failed to start task processor")
+	}
+}
+
+func runGrpcServer(config config.Config, store db.StoreDB, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(config, store, taskDistributor)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Cannot create server")
 	}
 
 	grpcLogger := grpc.UnaryInterceptor(logger.GrpcLogger)
@@ -66,12 +87,12 @@ func runGrpcServer(config config.Config, store db.StoreDB) {
 
 	listener, err := net.Listen("tcp", config.AuthServerAddress)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot create listene")
+		log.Fatal().Err(err).Msg("Cannot create listener")
 	}
 
 	log.Info().Msgf("start gRPC server at %s", listener.Addr().String())
 	err = grpcServer.Serve(listener)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot start a serve")
+		log.Fatal().Err(err).Msg("Cannot start Auth gRPC server")
 	}
 }
