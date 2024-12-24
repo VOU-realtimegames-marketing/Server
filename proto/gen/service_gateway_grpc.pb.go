@@ -23,6 +23,7 @@ const (
 	Gateway_LoginUser_FullMethodName           = "/vou.proto.Gateway/LoginUser"
 	Gateway_AuthorizeUser_FullMethodName       = "/vou.proto.Gateway/AuthorizeUser"
 	Gateway_RenewAccessToken_FullMethodName    = "/vou.proto.Gateway/RenewAccessToken"
+	Gateway_VerifyEmail_FullMethodName         = "/vou.proto.Gateway/VerifyEmail"
 	Gateway_CreateStore_FullMethodName         = "/vou.proto.Gateway/CreateStore"
 	Gateway_GetAllStoresOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllStoresOfOwner"
 	Gateway_UpdateStore_FullMethodName         = "/vou.proto.Gateway/UpdateStore"
@@ -41,6 +42,7 @@ type GatewayClient interface {
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
 	AuthorizeUser(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error)
 	RenewAccessToken(ctx context.Context, in *RenewAccessTokenRequest, opts ...grpc.CallOption) (*RenewAccessTokenResponse, error)
+	VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyEmailResponse, error)
 	// BEGIN COUNTERPART
 	CreateStore(ctx context.Context, in *CreateStoreRequest, opts ...grpc.CallOption) (*CreateStoreResponse, error)
 	GetAllStoresOfOwner(ctx context.Context, in *GetStoresOfOwnerRequest, opts ...grpc.CallOption) (*GetStoresOfOwnerResponse, error)
@@ -93,6 +95,16 @@ func (c *gatewayClient) RenewAccessToken(ctx context.Context, in *RenewAccessTok
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RenewAccessTokenResponse)
 	err := c.cc.Invoke(ctx, Gateway_RenewAccessToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayClient) VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyEmailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyEmailResponse)
+	err := c.cc.Invoke(ctx, Gateway_VerifyEmail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -178,6 +190,7 @@ type GatewayServer interface {
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
 	AuthorizeUser(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error)
 	RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error)
+	VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error)
 	// BEGIN COUNTERPART
 	CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error)
 	GetAllStoresOfOwner(context.Context, *GetStoresOfOwnerRequest) (*GetStoresOfOwnerResponse, error)
@@ -207,6 +220,9 @@ func (UnimplementedGatewayServer) AuthorizeUser(context.Context, *AuthorizeReque
 }
 func (UnimplementedGatewayServer) RenewAccessToken(context.Context, *RenewAccessTokenRequest) (*RenewAccessTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RenewAccessToken not implemented")
+}
+func (UnimplementedGatewayServer) VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmail not implemented")
 }
 func (UnimplementedGatewayServer) CreateStore(context.Context, *CreateStoreRequest) (*CreateStoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateStore not implemented")
@@ -318,6 +334,24 @@ func _Gateway_RenewAccessToken_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GatewayServer).RenewAccessToken(ctx, req.(*RenewAccessTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Gateway_VerifyEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).VerifyEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_VerifyEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).VerifyEmail(ctx, req.(*VerifyEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -470,6 +504,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RenewAccessToken",
 			Handler:    _Gateway_RenewAccessToken_Handler,
+		},
+		{
+			MethodName: "VerifyEmail",
+			Handler:    _Gateway_VerifyEmail_Handler,
 		},
 		{
 			MethodName: "CreateStore",

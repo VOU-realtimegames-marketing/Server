@@ -11,6 +11,10 @@ var (
 	isValidFullName = regexp.MustCompile(`^[a-zA-Z\s]+$`).MatchString
 )
 
+const (
+	OTP_LENGTH = 6
+)
+
 func ValidateString(value string, minLength int, maxLength int) error {
 	n := len(value)
 	if n < minLength || n > maxLength {
@@ -67,5 +71,8 @@ func ValidateEmailId(value int64) error {
 }
 
 func ValidateSecretCode(value string) error {
-	return ValidateString(value, 32, 128)
+	if len(value) != OTP_LENGTH {
+		return fmt.Errorf("OTP must contain from %d digits", 6)
+	}
+	return nil
 }

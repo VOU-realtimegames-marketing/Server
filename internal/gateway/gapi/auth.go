@@ -55,3 +55,7 @@ func (server *Server) AuthorizeUser(ctx context.Context, req *gen.AuthorizeReque
 func (server *Server) RenewAccessToken(ctx context.Context, req *gen.RenewAccessTokenRequest) (*gen.RenewAccessTokenResponse, error) {
 	return server.authClient.RenewAccessToken(ctx, req)
 }
+
+func (server *Server) VerifyEmail(ctx context.Context, req *gen.VerifyEmailRequest) (*gen.VerifyEmailResponse, error) {
+	return server.authClient.VerifyEmail(ctx, req)
+}

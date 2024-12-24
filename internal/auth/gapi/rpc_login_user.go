@@ -34,6 +34,10 @@ func (server *Server) LoginUser(ctx context.Context, req *gen.LoginUserRequest) 
 		return nil, status.Errorf(codes.Internal, "failed to get user: %s", err)
 	}
 
+	if user.Role == userRole && user.IsEmailVerified == false {
+		return nil, status.Errorf(codes.PermissionDenied, "email is not verified")
+	}
+
 	err = utils.CheckPassword(req.GetPassword(), user.HashedPassword)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid credentials")
