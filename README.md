@@ -25,6 +25,7 @@ Follow these steps to setup the development server:
 To start the server:
 
 - `make auth` (start auth microservice)
+- `make counterpart` (start counterpart microservice)
 - `make gateway` (start API gateway)
 
 Send HTTP requests to the API gateway at `localhost:8080`, e.g.:
