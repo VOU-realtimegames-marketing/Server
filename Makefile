@@ -37,6 +37,9 @@ proto:
 		--grpc-gateway_out=allow_delete_body=true,paths=source_relative:proto/gen \
     proto/*/*.proto && ./flatten_gen.sh
 
+wire:
+	cd internal/quiz/app && wire
+
 redis:
 	docker run --name redis -p 6379:6379 -d redis:7-alpine
 
@@ -52,4 +55,4 @@ counterpart:
 gateway:
 	cd cmd/gateway && go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto redis rabbitmq auth counterpart gateway
+.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto wire redis rabbitmq auth counterpart gateway
