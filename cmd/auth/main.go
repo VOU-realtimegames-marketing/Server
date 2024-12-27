@@ -6,7 +6,7 @@ import (
 	"VOU-Server/internal/auth/gapi"
 	"VOU-Server/internal/auth/mail"
 	"VOU-Server/internal/auth/worker"
-	"VOU-Server/internal/pkg/logger"
+	"VOU-Server/pkg/logger"
 	"VOU-Server/proto/gen"
 	"context"
 	"net"

@@ -3,7 +3,7 @@ package main
 import (
 	"VOU-Server/cmd/gateway/config"
 	"VOU-Server/internal/gateway/gapi"
-	"VOU-Server/internal/pkg/logger"
+	"VOU-Server/pkg/logger"
 	"VOU-Server/proto/gen"
 	"context"
 	"net"

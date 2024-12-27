@@ -4,7 +4,7 @@ import (
 	"VOU-Server/cmd/counterpart/config"
 	db "VOU-Server/db/sqlc"
 	"VOU-Server/internal/counterpart/gapi"
-	"VOU-Server/internal/pkg/logger"
+	"VOU-Server/pkg/logger"
 	"VOU-Server/proto/gen"
 	"context"
 	"net"
