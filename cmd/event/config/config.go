@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Environment        string `mapstructure:"ENVIRONMENT"`
 	DBSource           string `mapstructure:"DB_SOURCE"`
+	RabbitMQAddress    string `mapstructure:"RABBITMQ_ADDRESS"`
 	EventServerAddress string `mapstructure:"EVENT_SERVER_ADDRESS"`
 }
 

@@ -31,6 +31,7 @@ const (
 	Gateway_CreateBranch_FullMethodName        = "/vou.proto.Gateway/CreateBranch"
 	Gateway_GetBranchs_FullMethodName          = "/vou.proto.Gateway/GetBranchs"
 	Gateway_DeleteBranch_FullMethodName        = "/vou.proto.Gateway/DeleteBranch"
+	Gateway_CreateEvent_FullMethodName         = "/vou.proto.Gateway/CreateEvent"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -51,6 +52,8 @@ type GatewayClient interface {
 	CreateBranch(ctx context.Context, in *CreateBranchRequest, opts ...grpc.CallOption) (*CreateBranchResponse, error)
 	GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error)
 	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
+	// BEGIN EVENT-QUIZ
+	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
 }
 
 type gatewayClient struct {
@@ -181,6 +184,16 @@ func (c *gatewayClient) DeleteBranch(ctx context.Context, in *DeleteBranchReques
 	return out, nil
 }
 
+func (c *gatewayClient) CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateEventResponse)
+	err := c.cc.Invoke(ctx, Gateway_CreateEvent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility.
@@ -199,6 +212,8 @@ type GatewayServer interface {
 	CreateBranch(context.Context, *CreateBranchRequest) (*CreateBranchResponse, error)
 	GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error)
 	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
+	// BEGIN EVENT-QUIZ
+	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -244,6 +259,9 @@ func (UnimplementedGatewayServer) GetBranchs(context.Context, *GetBranchsRequest
 }
 func (UnimplementedGatewayServer) DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBranch not implemented")
+}
+func (UnimplementedGatewayServer) CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 func (UnimplementedGatewayServer) testEmbeddedByValue()                 {}
@@ -482,6 +500,24 @@ func _Gateway_DeleteBranch_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_CreateEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).CreateEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_CreateEvent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).CreateEvent(ctx, req.(*CreateEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -536,6 +572,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteBranch",
 			Handler:    _Gateway_DeleteBranch_Handler,
+		},
+		{
+			MethodName: "CreateEvent",
+			Handler:    _Gateway_CreateEvent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -3,35 +3,47 @@
 
 package app
 
+import (
+	db "VOU-Server/db/sqlc"
+	"VOU-Server/internal/event/gapi"
+	"VOU-Server/internal/event/handler"
+	"VOU-Server/pkg/rabbitmq"
+	pkgConsumer "VOU-Server/pkg/rabbitmq/consumer"
+	pkgPublisher "VOU-Server/pkg/rabbitmq/publisher"
+	"context"
+
+	"github.com/google/wire"
+	"github.com/jackc/pgx/v5/pgxpool"
+	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+)
+
 func InitApp(
-	dbConnStr postgres.DBConnString,
+	dbSource string,
 	rabbitMQConnStr rabbitmq.RabbitMQConnStr,
 	grpcServer *grpc.Server,
 ) (*App, func(), error) {
 	panic(wire.Build(
 		New,
-		dbEngineFunc,
+		storeDBFunc,
 		rabbitMQFunc,
 		pkgPublisher.EventPublisherSet,
 		pkgConsumer.EventConsumerSet,
 
-		infras.BaristaEventPublisherSet,
-		infras.KitchenEventPublisherSet,
-		infrasGRPC.ProductGRPCClientSet,
-		router.CounterGRPCServerSet,
-		repo.RepositorySet,
-		ordersUC.UseCaseSet,
-		handlers.BaristaOrderUpdatedEventHandlerSet,
-		handlers.KitchenOrderUpdatedEventHandlerSet,
+		gapi.EventGRPCServerSet,
+		handler.QuizCreatedHandlerSet,
 	))
 }
 
-func dbEngineFunc(url postgres.DBConnString) (postgres.DBEngine, func(), error) {
-	db, err := postgres.NewPostgresDB(url)
+func storeDBFunc(dbSource string) db.StoreDB {
+	connPool, err := pgxpool.New(context.Background(), dbSource)
 	if err != nil {
-		return nil, nil, err
+		log.Fatal().Err(err).Msg("Cannot connect to DB")
 	}
-	return db, func() { db.Close() }, nil
+
+	store := db.NewStore(connPool)
+	return store
 }
 
 func rabbitMQFunc(url rabbitmq.RabbitMQConnStr) (*amqp.Connection, func(), error) {

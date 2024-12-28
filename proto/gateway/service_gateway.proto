@@ -18,6 +18,8 @@ import "counterpart/rpc_create_branch.proto";
 import "counterpart/rpc_get_branchs.proto";
 import "counterpart/rpc_delete_branch.proto";
 
+import "event-quiz/rpc_create_event.proto";
+
 option go_package = "VOU-Server/proto/gen";
 
 service Gateway {
@@ -91,4 +93,14 @@ service Gateway {
     };
   }
   // END COUNTERPART
+
+  // BEGIN EVENT-QUIZ
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/create_event"
+      body: "*"
+    };
+  }
+
+  // END EVENT-QUIZ
 }

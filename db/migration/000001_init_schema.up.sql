@@ -88,15 +88,16 @@ CREATE TABLE "events" (
   "photo" varchar NOT NULL DEFAULT 'default-game.jpg',
   "voucher_quantity" int NOT NULL DEFAULT 5,
   "status" events_status NOT NULL DEFAULT 'generating',
-  "start_time" timestamptz NOT NULL DEFAULT (now()),
-  "end_time" timestamptz NOT NULL
+  "start_time" timestamptz NOT NULL DEFAULT (now() + interval '60 minutes'),
+  "end_time" timestamptz NOT NULL DEFAULT (now() + interval '75 minutes')
 );
 
 CREATE TABLE "quizzes" (
   "id" bigserial PRIMARY KEY,
   "event_id" bigint NOT NULL,
   "content" json NOT NULL,
-  "quiz_genre" varchar NOT NULL DEFAULT 'miscellaneous'
+  "quiz_genre" varchar NOT NULL DEFAULT 'miscellaneous',
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "vouchers" (

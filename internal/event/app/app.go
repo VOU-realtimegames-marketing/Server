@@ -2,6 +2,7 @@ package app
 
 import (
 	db "VOU-Server/db/sqlc"
+	"VOU-Server/internal/event/gapi"
 	"VOU-Server/internal/event/handler"
 	pkgConsumer "VOU-Server/pkg/rabbitmq/consumer"
 	pkgPublisher "VOU-Server/pkg/rabbitmq/publisher"
@@ -20,15 +21,16 @@ type App struct {
 	Consumer  pkgConsumer.EventConsumer
 
 	handler handler.QuizCreatedHandler
+	server  *gapi.Server
 }
 
 func New(
-
 	amqpConn *amqp.Connection,
 	store db.StoreDB,
 	publisher pkgPublisher.EventPublisher,
 	consumer pkgConsumer.EventConsumer,
 	handler handler.QuizCreatedHandler,
+	server *gapi.Server,
 ) *App {
 	return &App{
 		AMQPConn: amqpConn,
@@ -37,6 +39,7 @@ func New(
 		Publisher: publisher,
 		Consumer:  consumer,
 		handler:   handler,
+		server:    server,
 	}
 }
 
