@@ -52,7 +52,7 @@ func prepareApp(config config.Config, grpcServer *grpc.Server) func() {
 	a.Publisher.Configure(
 		pkgPublisher.ExchangeName("quiz-event-exchange"),
 		pkgPublisher.BindingKey("quiz-event-routing-key"),
-		pkgPublisher.MessageTypeName("quiz-event-created"),
+		pkgPublisher.MessageTypeName("quiz-event-generated"),
 	)
 
 	a.Consumer.Configure(

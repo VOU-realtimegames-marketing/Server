@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	CreateBranch(ctx context.Context, arg CreateBranchParams) (Branch, error)
+	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)

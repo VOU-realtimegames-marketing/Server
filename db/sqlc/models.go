@@ -5,11 +5,56 @@
 package db
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type EventsStatus string
+
+const (
+	EventsStatusGenerating  EventsStatus = "generating"
+	EventsStatusNotAccepted EventsStatus = "not_accepted"
+	EventsStatusReady       EventsStatus = "ready"
+)
+
+func (e *EventsStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EventsStatus(s)
+	case string:
+		*e = EventsStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EventsStatus: %T", src)
+	}
+	return nil
+}
+
+type NullEventsStatus struct {
+	EventsStatus EventsStatus `json:"events_status"`
+	Valid        bool         `json:"valid"` // Valid is true if EventsStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEventsStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.EventsStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EventsStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEventsStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EventsStatus), nil
+}
 
 type Branch struct {
 	ID       int64  `json:"id"`
@@ -23,13 +68,15 @@ type Branch struct {
 }
 
 type Event struct {
-	ID              int64     `json:"id"`
-	GameID          int64     `json:"game_id"`
-	Name            string    `json:"name"`
-	Photo           string    `json:"photo"`
-	VoucherQuantity int32     `json:"voucher_quantity"`
-	StartTime       time.Time `json:"start_time"`
-	EndTime         time.Time `json:"end_time"`
+	ID              int64        `json:"id"`
+	GameID          int64        `json:"game_id"`
+	StoreID         int64        `json:"store_id"`
+	Name            string       `json:"name"`
+	Photo           string       `json:"photo"`
+	VoucherQuantity int32        `json:"voucher_quantity"`
+	Status          EventsStatus `json:"status"`
+	StartTime       time.Time    `json:"start_time"`
+	EndTime         time.Time    `json:"end_time"`
 }
 
 type Game struct {
@@ -39,6 +86,14 @@ type Game struct {
 	Type        string      `json:"type"`
 	PlayGuide   pgtype.Text `json:"play_guide"`
 	GiftAllowed bool        `json:"gift_allowed"`
+}
+
+type Quiz struct {
+	ID        int64     `json:"id"`
+	EventID   int64     `json:"event_id"`
+	Content   []byte    `json:"content"`
+	QuizGenre string    `json:"quiz_genre"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Session struct {

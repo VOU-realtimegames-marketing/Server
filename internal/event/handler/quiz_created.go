@@ -2,9 +2,12 @@ package handler
 
 import (
 	db "VOU-Server/db/sqlc"
+	"VOU-Server/internal/pkg/task"
 	"context"
+	"fmt"
 
 	"github.com/google/wire"
+	"github.com/rs/zerolog/log"
 )
 
 var _ QuizCreatedHandler = (*quizCreatedHandler)(nil)
@@ -21,7 +24,11 @@ func NewQuizCreatedHandler(store db.StoreDB) QuizCreatedHandler {
 	}
 }
 
-func (h *quizCreatedHandler) Handle(ctx context.Context, e any) error {
+func (h *quizCreatedHandler) Handle(ctx context.Context, payload task.PayloadQuizCreated) error {
+	log.Info().Msg("received event: quiz created")
+
+	fmt.Println("payload status: ", payload.Status)
+
 	// slog.Info("received event", "event.BaristaOrdered", e)
 
 	// order := domain.NewBaristaOrder(e)

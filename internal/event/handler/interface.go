@@ -1,7 +1,10 @@
 package handler
 
-import "context"
+import (
+	"VOU-Server/internal/pkg/task"
+	"context"
+)
 
 type QuizCreatedHandler interface {
-	Handle(context.Context, any) error
+	Handle(context.Context, task.PayloadQuizCreated) error
 }

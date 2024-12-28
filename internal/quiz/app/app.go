@@ -2,6 +2,7 @@ package app
 
 import (
 	db "VOU-Server/db/sqlc"
+	"VOU-Server/internal/pkg/task"
 	"VOU-Server/internal/quiz/handler"
 	pkgConsumer "VOU-Server/pkg/rabbitmq/consumer"
 	pkgPublisher "VOU-Server/pkg/rabbitmq/publisher"
@@ -48,11 +49,7 @@ func (c *App) Worker(ctx context.Context, messages <-chan amqp091.Delivery) {
 
 		switch delivery.Type {
 		case "quiz-event-generated":
-			// var payload event.BaristaOrdered
-			var payload struct {
-				EventID  string `json:"event_id"`
-				QuizType string `json:"quiz_type"`
-			}
+			var payload task.PayloadGenQuiz
 
 			err := json.Unmarshal(delivery.Body, &payload)
 			if err != nil {

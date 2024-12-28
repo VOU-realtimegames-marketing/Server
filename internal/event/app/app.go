@@ -4,6 +4,7 @@ import (
 	db "VOU-Server/db/sqlc"
 	"VOU-Server/internal/event/gapi"
 	"VOU-Server/internal/event/handler"
+	"VOU-Server/internal/pkg/task"
 	pkgConsumer "VOU-Server/pkg/rabbitmq/consumer"
 	pkgPublisher "VOU-Server/pkg/rabbitmq/publisher"
 	"context"
@@ -49,16 +50,15 @@ func (a *App) Worker(ctx context.Context, messages <-chan amqp.Delivery) {
 		log.Info().Str("delivery_type", delivery.Type).Msg("received")
 
 		switch delivery.Type {
-		case "barista-order-updated":
-			// var payload shared.BaristaOrderUpdated
-			var payload struct{}
+		case "quiz-created":
+			var payload task.PayloadQuizCreated
 
 			err := json.Unmarshal(delivery.Body, &payload)
 			if err != nil {
 				log.Fatal().Err(err).Msg("failed to Unmarshal")
 			}
 
-			err = a.handler.Handle(ctx, &payload)
+			err = a.handler.Handle(ctx, payload)
 
 			if err != nil {
 				if err = delivery.Reject(false); err != nil {

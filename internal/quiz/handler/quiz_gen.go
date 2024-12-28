@@ -1,10 +1,15 @@
 package handler
 
 import (
+	"VOU-Server/internal/pkg/task"
 	"VOU-Server/pkg/rabbitmq/publisher"
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/google/wire"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 var _ QuizGenHandler = (*quizGenHandler)(nil)
@@ -21,8 +26,20 @@ func NewQuizGenHandler(eventPub publisher.EventPublisher) QuizGenHandler {
 	}
 }
 
-func (h *quizGenHandler) Handle(ctx context.Context, e any) error {
-	// slog.Info("received event", "event.BaristaOrdered", e)
+func (h *quizGenHandler) Handle(ctx context.Context, payload task.PayloadGenQuiz) error {
+	log.Info().Msg("received event: quiz event generated")
+
+	fmt.Println("payload: ", payload)
+	rspPayload := task.PayloadQuizCreated{
+		Status: true,
+	}
+
+	bytes, err := json.Marshal(rspPayload)
+	if err != nil {
+		return errors.Wrap(err, "eventPub.Publish")
+	}
+
+	h.eventPub.Publish(ctx, bytes, "text/plain")
 
 	// order := domain.NewBaristaOrder(e)
 
