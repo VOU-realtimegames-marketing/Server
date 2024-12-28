@@ -6,11 +6,13 @@ package app
 import (
 	db "VOU-Server/db/sqlc"
 	"VOU-Server/internal/quiz/handler"
+	"VOU-Server/pkg/llms"
 	"VOU-Server/pkg/rabbitmq"
 	pkgConsumer "VOU-Server/pkg/rabbitmq/consumer"
 	pkgPublisher "VOU-Server/pkg/rabbitmq/publisher"
 	"context"
 
+	"github.com/google/generative-ai-go/genai"
 	"github.com/google/wire"
 	"github.com/jackc/pgx/v5/pgxpool"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -20,6 +22,7 @@ import (
 func InitApp(
 	dbSource string,
 	rabbitMQConnStr rabbitmq.RabbitMQConnStr,
+	apiKey llms.LLMApiKey,
 ) (*App, func(), error) {
 	panic(wire.Build(
 		New,
@@ -27,6 +30,8 @@ func InitApp(
 		rabbitMQFunc,
 		pkgPublisher.EventPublisherSet,
 		pkgConsumer.EventConsumerSet,
+		genAIFunc,
+		llms.GeminiSet,
 		handler.QuizGenHandlerSet,
 	))
 }
@@ -47,4 +52,12 @@ func rabbitMQFunc(url rabbitmq.RabbitMQConnStr) (*amqp.Connection, func(), error
 		return nil, nil, err
 	}
 	return conn, func() { conn.Close() }, nil
+}
+
+func genAIFunc(apiKey llms.LLMApiKey) (*genai.Client, func(), error) {
+	client, err := llms.NewGenerativeAIClient(context.Background(), apiKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	return client, func() { client.Close() }, nil
 }

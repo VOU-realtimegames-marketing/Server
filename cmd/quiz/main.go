@@ -3,6 +3,7 @@ package main
 import (
 	"VOU-Server/cmd/quiz/config"
 	"VOU-Server/internal/quiz/app"
+	"VOU-Server/pkg/llms"
 	"VOU-Server/pkg/rabbitmq"
 	pkgConsumer "VOU-Server/pkg/rabbitmq/consumer"
 	pkgPublisher "VOU-Server/pkg/rabbitmq/publisher"
@@ -27,7 +28,7 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
-	a, cleanup, err := app.InitApp(config.DBSource, rabbitmq.RabbitMQConnStr(config.RabbitMQAddress))
+	a, cleanup, err := app.InitApp(config.DBSource, rabbitmq.RabbitMQConnStr(config.RabbitMQAddress), llms.LLMApiKey(config.GeminiAPIKey))
 	a.QuizCreatedPub.Configure(
 		pkgPublisher.ExchangeName("quiz-created-exchange"),
 		pkgPublisher.BindingKey("quiz-created-routing-key"),

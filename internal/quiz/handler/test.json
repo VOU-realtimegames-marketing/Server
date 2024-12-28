@@ -1,0 +1,77 @@
+[
+  {
+    "quizName": "NFL Quiz",
+    "questions": [
+      {
+        "question": "Which NFL team won Super Bowl LVII?",
+        "answer": "Kansas City Chiefs",
+        "options": ["Kansas City Chiefs", "Philadelphia Eagles", "Buffalo Bills", "Cincinnati Bengals"]
+      },
+      {
+        "question": "How many players are on an NFL team's active roster?",
+        "answer": "53",
+        "options": ["45", "53", "60", "75"]
+      },
+      {
+        "question": "What is the name of the annual college football championship game?",
+        "answer": "College Football Playoff National Championship",
+        "options": ["BCS National Championship Game", "Rose Bowl", "Sugar Bowl", "College Football Playoff National Championship"]
+      },
+      {
+        "question": "Which position is responsible for snapping the ball in American football?",
+        "answer": "Center",
+        "options": ["Quarterback", "Running Back", "Center", "Wide Receiver"]
+      }
+    ]
+  },
+  {
+    "quizName": "Football Rules Quiz",
+    "questions": [
+      {
+        "question": "How many yards are needed for a first down?",
+        "answer": "10",
+        "options": ["5", "10", "15", "20"]
+      },
+      {
+        "question": "What happens if a player catches the ball in the end zone after a pass?",
+        "answer": "Touchdown",
+        "options": ["Touchdown", "Field Goal", "Safety", "Interception"]
+      },
+      {
+        "question": "What is the term for a forward pass that is incomplete?",
+        "answer": "Incompletion",
+        "options": ["Interception", "Fumble", "Incompletion", "Penalty"]
+      },
+      {
+        "question": "How many downs does a team have to make 10 yards before losing possession?",
+        "answer": "4",
+        "options": ["3", "4", "5", "6"]
+      }
+    ]
+  },
+  {
+    "quizName": "International Football Quiz",
+    "questions": [
+      {
+        "question": "Which country won the 2022 FIFA World Cup?",
+        "answer": "Argentina",
+        "options": ["Brazil", "France", "Argentina", "Germany"]
+      },
+      {
+        "question": "What is the name of the most prestigious club competition in European football?",
+        "answer": "UEFA Champions League",
+        "options": ["UEFA Europa League", "UEFA Champions League", "FIFA Club World Cup", "FA Cup"]
+      },
+      {
+        "question": "Which country is credited with inventing the modern game of football (soccer)?",
+        "answer": "England",
+        "options": ["France", "Germany", "Brazil", "England"]
+      },
+      {
+        "question": "What is a free kick in soccer?",
+        "answer": "An indirect kick awarded for various fouls",
+        "options": ["A direct kick for fouls", "A penalty kick", "An indirect kick awarded for various fouls", "A throw-in"]
+      }
+    ]
+  }
+]

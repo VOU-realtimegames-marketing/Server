@@ -9,10 +9,12 @@ package app
 import (
 	"VOU-Server/db/sqlc"
 	"VOU-Server/internal/quiz/handler"
+	"VOU-Server/pkg/llms"
 	"VOU-Server/pkg/rabbitmq"
 	"VOU-Server/pkg/rabbitmq/consumer"
 	"VOU-Server/pkg/rabbitmq/publisher"
 	"context"
+	"github.com/google/generative-ai-go/genai"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
@@ -20,25 +22,34 @@ import (
 
 // Injectors from wire.go:
 
-func InitApp(dbSource string, rabbitMQConnStr rabbitmq.RabbitMQConnStr) (*App, func(), error) {
+func InitApp(dbSource string, rabbitMQConnStr rabbitmq.RabbitMQConnStr, apiKey llms.LLMApiKey) (*App, func(), error) {
 	connection, cleanup, err := rabbitMQFunc(rabbitMQConnStr)
 	if err != nil {
 		return nil, nil, err
 	}
 	storeDB := storeDBFunc(dbSource)
+	client, cleanup2, err := genAIFunc(apiKey)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	eventPublisher, err := publisher.NewPublisher(connection)
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	eventConsumer, err := consumer.NewConsumer(connection)
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	quizGenHandler := handler.NewQuizGenHandler(eventPublisher)
-	app := New(connection, storeDB, eventPublisher, eventConsumer, quizGenHandler)
+	genAI := llms.NewGemini(client)
+	quizGenHandler := handler.NewQuizGenHandler(eventPublisher, storeDB, genAI)
+	app := New(connection, storeDB, client, eventPublisher, eventConsumer, quizGenHandler)
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }
@@ -61,4 +72,12 @@ func rabbitMQFunc(url rabbitmq.RabbitMQConnStr) (*amqp091.Connection, func(), er
 		return nil, nil, err
 	}
 	return conn, func() { conn.Close() }, nil
+}
+
+func genAIFunc(apiKey llms.LLMApiKey) (*genai.Client, func(), error) {
+	client, err := llms.NewGenerativeAIClient(context.Background(), apiKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	return client, func() { client.Close() }, nil
 }

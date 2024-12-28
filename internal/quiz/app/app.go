@@ -9,14 +9,16 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/google/generative-ai-go/genai"
 	"github.com/rabbitmq/amqp091-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
 )
 
 type App struct {
-	AMQPConn *amqp.Connection
-	store    db.StoreDB
+	AMQPConn    *amqp.Connection
+	store       db.StoreDB
+	genAIClient *genai.Client
 
 	QuizCreatedPub pkgPublisher.EventPublisher
 	Consumer       pkgConsumer.EventConsumer
@@ -27,13 +29,15 @@ type App struct {
 func New(
 	amqpConn *amqp.Connection,
 	store db.StoreDB,
+	genAIClient *genai.Client,
 	quizCreatedPub pkgPublisher.EventPublisher,
 	consumer pkgConsumer.EventConsumer,
 	handler handler.QuizGenHandler,
 ) *App {
 	return &App{
-		AMQPConn: amqpConn,
-		store:    store,
+		AMQPConn:    amqpConn,
+		store:       store,
+		genAIClient: genAIClient,
 
 		QuizCreatedPub: quizCreatedPub,
 		Consumer:       consumer,

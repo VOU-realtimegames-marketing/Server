@@ -10,6 +10,7 @@ type Config struct {
 	Environment     string `mapstructure:"ENVIRONMENT"`
 	DBSource        string `mapstructure:"DB_SOURCE"`
 	RabbitMQAddress string `mapstructure:"RABBITMQ_ADDRESS"`
+	GeminiAPIKey    string `mapstructure:"GEMINI_API_KEY"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

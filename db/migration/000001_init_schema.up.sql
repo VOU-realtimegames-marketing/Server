@@ -95,7 +95,7 @@ CREATE TABLE "events" (
 CREATE TABLE "quizzes" (
   "id" bigserial PRIMARY KEY,
   "event_id" bigint NOT NULL,
-  "content" json NOT NULL,
+  "content" jsonb NOT NULL,
   "quiz_genre" varchar NOT NULL DEFAULT 'miscellaneous',
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );

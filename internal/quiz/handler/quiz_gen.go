@@ -1,11 +1,14 @@
 package handler
 
 import (
+	db "VOU-Server/db/sqlc"
 	"VOU-Server/internal/pkg/task"
+	"VOU-Server/pkg/llms"
 	"VOU-Server/pkg/rabbitmq/publisher"
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/google/wire"
 	"github.com/pkg/errors"
@@ -18,22 +21,46 @@ var QuizGenHandlerSet = wire.NewSet(NewQuizGenHandler)
 
 type quizGenHandler struct {
 	eventPub publisher.EventPublisher
+	store    db.StoreDB
+	gemini   llms.GenAI
 }
 
-func NewQuizGenHandler(eventPub publisher.EventPublisher) QuizGenHandler {
+func NewQuizGenHandler(eventPub publisher.EventPublisher, store db.StoreDB, gemini llms.GenAI) QuizGenHandler {
 	return &quizGenHandler{
 		eventPub: eventPub,
+		store:    store,
+		gemini:   gemini,
 	}
+}
+
+// sudo rabbitmqctl list_queues name messages_ready messages_unacknowledged
+type Quiz struct {
+	Question string   `json:"question"`
+	Answer   string   `json:"answer"`
+	Options  []string `json:"options"`
 }
 
 func (h *quizGenHandler) Handle(ctx context.Context, payload task.PayloadGenQuiz) error {
 	log.Info().Msg("received event: quiz event generated")
 
 	fmt.Println("payload: ", payload)
+
+	quizzesStr, err := h.gemini.GenerateContent(ctx, fmt.Sprintf(task.QuizGeneratePrompt, 3, payload.QuizGenre))
+	jsonStr := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(quizzesStr, "```json"), "```\n"))
+	fmt.Println("jsonStr: ", jsonStr)
+
+	var quizzes []Quiz
+	err = json.Unmarshal([]byte(jsonStr), &quizzes)
+	fmt.Println("quizzes: ", quizzes)
+	h.store.CreateQuiz(ctx, db.CreateQuizParams{
+		EventID:   payload.EventId,
+		QuizGenre: payload.QuizGenre,
+		Content:   []byte(jsonStr),
+	})
+
 	rspPayload := task.PayloadQuizCreated{
 		Status: true,
 	}
-
 	bytes, err := json.Marshal(rspPayload)
 	if err != nil {
 		return errors.Wrap(err, "eventPub.Publish")
