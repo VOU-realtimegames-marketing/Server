@@ -38,7 +38,8 @@ proto:
     proto/*/*.proto && ./flatten_gen.sh
 
 wire:
-	cd internal/quiz/app && wire
+	cd internal/quiz/app && wire && cd - && \
+	cd internal/event/app && wire && cd -
 
 redis:
 	docker run --name redis -p 6379:6379 -d redis:7-alpine

@@ -1,3 +1,9 @@
+CREATE TYPE "events_status" AS ENUM (
+  'generating',
+  'not_accepted',
+  'ready'
+);
+
 CREATE TABLE "users" (
   "username" varchar PRIMARY KEY,
   "hashed_password" varchar NOT NULL,
@@ -77,11 +83,20 @@ CREATE TABLE "games" (
 CREATE TABLE "events" (
   "id" bigserial PRIMARY KEY,
   "game_id" bigint NOT NULL,
+  "store_id" bigint NOT NULL,
   "name" varchar NOT NULL,
   "photo" varchar NOT NULL DEFAULT 'default-game.jpg',
   "voucher_quantity" int NOT NULL DEFAULT 5,
+  "status" events_status NOT NULL DEFAULT 'generating',
   "start_time" timestamptz NOT NULL DEFAULT (now()),
   "end_time" timestamptz NOT NULL
+);
+
+CREATE TABLE "quizzes" (
+  "id" bigserial PRIMARY KEY,
+  "event_id" bigint NOT NULL,
+  "content" json NOT NULL,
+  "quiz_genre" varchar NOT NULL DEFAULT 'miscellaneous'
 );
 
 CREATE TABLE "vouchers" (
@@ -105,6 +120,10 @@ CREATE INDEX ON "stores" ("owner");
 
 CREATE UNIQUE INDEX ON "branchs" ("store_id", "name");
 
+CREATE INDEX ON "events" ("store_id");
+
+CREATE INDEX ON "events" ("game_id");
+
 ALTER TABLE "verify_emails" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
 
 ALTER TABLE "sessions" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
@@ -124,6 +143,10 @@ ALTER TABLE "stores" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username");
 ALTER TABLE "branchs" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
 
 ALTER TABLE "events" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("id");
+
+ALTER TABLE "events" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
+
+ALTER TABLE "quizzes" ADD FOREIGN KEY ("event_id") REFERENCES "events" ("id");
 
 ALTER TABLE "vouchers" ADD FOREIGN KEY ("event_id") REFERENCES "events" ("id");
 
