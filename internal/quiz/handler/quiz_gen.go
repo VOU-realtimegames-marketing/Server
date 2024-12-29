@@ -33,82 +33,45 @@ func NewQuizGenHandler(eventPub publisher.EventPublisher, store db.StoreDB, gemi
 	}
 }
 
-// sudo rabbitmqctl list_queues name messages_ready messages_unacknowledged
-type Quiz struct {
-	Question string   `json:"question"`
-	Answer   string   `json:"answer"`
-	Options  []string `json:"options"`
-}
-
 func (h *quizGenHandler) Handle(ctx context.Context, payload task.PayloadGenQuiz) error {
 	log.Info().Msg("received event: quiz event generated")
 
 	fmt.Println("payload: ", payload)
 
-	quizzesStr, err := h.gemini.GenerateContent(ctx, fmt.Sprintf(task.QuizGeneratePrompt, 3, payload.QuizGenre))
+	quizzesStr, err := h.gemini.GenerateContent(
+		ctx,
+		fmt.Sprintf(task.QuizGeneratePrompt, payload.QuizNum, payload.QuizGenre),
+	)
 	jsonStr := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(quizzesStr, "```json"), "```\n"))
 	fmt.Println("jsonStr: ", jsonStr)
 
-	var quizzes []Quiz
+	var quizzes []task.Quiz
 	err = json.Unmarshal([]byte(jsonStr), &quizzes)
 	fmt.Println("quizzes: ", quizzes)
-	h.store.CreateQuiz(ctx, db.CreateQuizParams{
-		EventID:   payload.EventId,
-		QuizGenre: payload.QuizGenre,
-		Content:   []byte(jsonStr),
-	})
 
-	rspPayload := task.PayloadQuizCreated{
-		Status: true,
+	arg := db.CreateQuizTxParams{
+		CreateQuizParams: db.CreateQuizParams{
+			EventID:   payload.EventId,
+			QuizGenre: payload.QuizGenre,
+			Content:   []byte(jsonStr),
+		},
+		AfterCreate: func(quiz db.Quiz) error {
+			payloadQuizCreated := task.PayloadQuizCreated{
+				EventId: quiz.EventID,
+			}
+			bytes, err := json.Marshal(payloadQuizCreated)
+			if err != nil {
+				return errors.Wrap(err, "eventPub.Publish")
+			}
+
+			return h.eventPub.Publish(ctx, bytes, "text/plain")
+		},
 	}
-	bytes, err := json.Marshal(rspPayload)
+
+	_, err = h.store.CreateQuizTx(ctx, arg)
 	if err != nil {
-		return errors.Wrap(err, "eventPub.Publish")
+		return errors.Wrap(err, "store.CreateQuizTx")
 	}
 
-	h.eventPub.Publish(ctx, bytes, "text/plain")
-
-	// order := domain.NewBaristaOrder(e)
-
-	// db := h.pg.GetDB()
-	// querier := postgresql.New(db)
-
-	// tx, err := db.Begin()
-	// if err != nil {
-	// 	return errors.Wrap(err, "baristaOrderedEventHandler.Handle")
-	// }
-
-	// qtx := querier.WithTx(tx)
-
-	// _, err = qtx.CreateOrder(ctx, postgresql.CreateOrderParams{
-	// 	ID:       order.ID,
-	// 	ItemType: int32(order.ItemType),
-	// 	ItemName: order.ItemName,
-	// 	TimeUp:   order.TimeUp,
-	// 	Created:  order.Created,
-	// 	Updated: sql.NullTime{
-	// 		Time:  order.Updated,
-	// 		Valid: true,
-	// 	},
-	// })
-	// if err != nil {
-	// 	slog.Info("failed to call to repo", "error", err)
-
-	// 	return errors.Wrap(err, "baristaOrderedEventHandler-querier.CreateOrder")
-	// }
-
-	// // todo: it might cause dual-write problem, but we accept it temporary
-	// for _, event := range order.DomainEvents() {
-	// 	eventBytes, err := json.Marshal(event)
-	// 	if err != nil {
-	// 		return errors.Wrap(err, "json.Marshal[event]")
-	// 	}
-
-	// 	if err := h.counterPub.Publish(ctx, eventBytes, "text/plain"); err != nil {
-	// 		return errors.Wrap(err, "counterPub.Publish")
-	// 	}
-	// }
-
-	// return tx.Commit()
 	return nil
 }

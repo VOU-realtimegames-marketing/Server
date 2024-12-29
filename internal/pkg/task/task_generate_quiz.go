@@ -3,10 +3,18 @@ package task
 type PayloadGenQuiz struct {
 	QuizGenre string `json:"quiz_genre"`
 	EventId   int64  `json:"event_id"`
+	QuizNum   int32  `json:"quiz_num"`
 }
 
 type PayloadQuizCreated struct {
-	Status bool `json:"status"`
+	EventId int64 `json:"event_id"`
+}
+
+// sudo rabbitmqctl list_queues name messages_ready messages_unacknowledged
+type Quiz struct {
+	Question string   `json:"question"`
+	Answer   string   `json:"answer"`
+	Options  []string `json:"options"`
 }
 
 const QuizGeneratePrompt = `

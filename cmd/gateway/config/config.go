@@ -12,6 +12,7 @@ type Config struct {
 	GRPCServerAddress        string `mapstructure:"GRPC_SERVER_ADDRESS"`
 	AuthServerAddress        string `mapstructure:"AUTH_SERVER_ADDRESS"`
 	CounterpartServerAddress string `mapstructure:"COUNTERPART_SERVER_ADDRESS"`
+	EventServerAddress       string `mapstructure:"EVENT_SERVER_ADDRESS"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

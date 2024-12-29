@@ -25,6 +25,7 @@ type Querier interface {
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
 	ListBranchs(ctx context.Context, storeID int64) ([]Branch, error)
 	ListStoresOfOwner(ctx context.Context, owner string) ([]Store, error)
+	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (VerifyEmail, error)

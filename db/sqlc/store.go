@@ -11,6 +11,8 @@ type StoreDB interface {
 	Querier
 	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
 	VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParams) (VerifyEmailTxResult, error)
+	CreateEventTx(ctx context.Context, arg CreateEventTxParams) (CreateEventTxResult, error)
+	CreateQuizTx(ctx context.Context, arg CreateQuizTxParams) (CreateQuizTxResult, error)
 }
 
 // SQLStore provides all functions to execute SQL queries and transactions

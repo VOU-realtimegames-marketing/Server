@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEvent = `-- name: CreateEvent :one
@@ -46,6 +48,51 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		arg.Status,
 		arg.StartTime,
 		arg.EndTime,
+	)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.StoreID,
+		&i.Name,
+		&i.Photo,
+		&i.VoucherQuantity,
+		&i.Status,
+		&i.StartTime,
+		&i.EndTime,
+	)
+	return i, err
+}
+
+const updateEvent = `-- name: UpdateEvent :one
+UPDATE events
+SET
+  name = COALESCE($1,name),
+  photo = COALESCE($2,photo),
+  status = COALESCE($3,status),
+  start_time = COALESCE($4,start_time),
+  end_time = COALESCE($5,end_time)
+WHERE id = $6
+RETURNING id, game_id, store_id, name, photo, voucher_quantity, status, start_time, end_time
+`
+
+type UpdateEventParams struct {
+	Name      pgtype.Text        `json:"name"`
+	Photo     pgtype.Text        `json:"photo"`
+	Status    NullEventsStatus   `json:"status"`
+	StartTime pgtype.Timestamptz `json:"start_time"`
+	EndTime   pgtype.Timestamptz `json:"end_time"`
+	ID        int64              `json:"id"`
+}
+
+func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error) {
+	row := q.db.QueryRow(ctx, updateEvent,
+		arg.Name,
+		arg.Photo,
+		arg.Status,
+		arg.StartTime,
+		arg.EndTime,
+		arg.ID,
 	)
 	var i Event
 	err := row.Scan(
