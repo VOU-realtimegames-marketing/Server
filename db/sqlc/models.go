@@ -71,6 +71,7 @@ type Event struct {
 	ID              int64        `json:"id"`
 	GameID          int64        `json:"game_id"`
 	StoreID         int64        `json:"store_id"`
+	Owner           string       `json:"owner"`
 	Name            string       `json:"name"`
 	Photo           string       `json:"photo"`
 	VoucherQuantity int32        `json:"voucher_quantity"`

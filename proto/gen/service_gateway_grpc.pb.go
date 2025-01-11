@@ -32,6 +32,7 @@ const (
 	Gateway_GetBranchs_FullMethodName          = "/vou.proto.Gateway/GetBranchs"
 	Gateway_DeleteBranch_FullMethodName        = "/vou.proto.Gateway/DeleteBranch"
 	Gateway_CreateEvent_FullMethodName         = "/vou.proto.Gateway/CreateEvent"
+	Gateway_GetAllEventsOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllEventsOfOwner"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -54,6 +55,7 @@ type GatewayClient interface {
 	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
 	// BEGIN EVENT-QUIZ
 	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
+	GetAllEventsOfOwner(ctx context.Context, in *GetEventsOfOwnerRequest, opts ...grpc.CallOption) (*GetEventsOfOwnerResponse, error)
 }
 
 type gatewayClient struct {
@@ -194,6 +196,16 @@ func (c *gatewayClient) CreateEvent(ctx context.Context, in *CreateEventRequest,
 	return out, nil
 }
 
+func (c *gatewayClient) GetAllEventsOfOwner(ctx context.Context, in *GetEventsOfOwnerRequest, opts ...grpc.CallOption) (*GetEventsOfOwnerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventsOfOwnerResponse)
+	err := c.cc.Invoke(ctx, Gateway_GetAllEventsOfOwner_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility.
@@ -214,6 +226,7 @@ type GatewayServer interface {
 	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
 	// BEGIN EVENT-QUIZ
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
+	GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -262,6 +275,9 @@ func (UnimplementedGatewayServer) DeleteBranch(context.Context, *DeleteBranchReq
 }
 func (UnimplementedGatewayServer) CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
+}
+func (UnimplementedGatewayServer) GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllEventsOfOwner not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 func (UnimplementedGatewayServer) testEmbeddedByValue()                 {}
@@ -518,6 +534,24 @@ func _Gateway_CreateEvent_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_GetAllEventsOfOwner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventsOfOwnerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).GetAllEventsOfOwner(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_GetAllEventsOfOwner_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).GetAllEventsOfOwner(ctx, req.(*GetEventsOfOwnerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -576,6 +610,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateEvent",
 			Handler:    _Gateway_CreateEvent_Handler,
+		},
+		{
+			MethodName: "GetAllEventsOfOwner",
+			Handler:    _Gateway_GetAllEventsOfOwner_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

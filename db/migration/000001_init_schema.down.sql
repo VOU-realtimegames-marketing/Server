@@ -8,6 +8,7 @@ ALTER TABLE IF EXISTS "voucher_owner" DROP CONSTRAINT IF EXISTS "voucher_owner_u
 ALTER TABLE IF EXISTS "voucher_owner" DROP CONSTRAINT IF EXISTS "voucher_owner_voucher_id_fkey";
 ALTER TABLE IF EXISTS "stores" DROP CONSTRAINT IF EXISTS "stores_owner_fkey";
 ALTER TABLE IF EXISTS "branchs" DROP CONSTRAINT IF EXISTS "branchs_store_id_fkey";
+ALTER TABLE IF EXISTS "events" DROP CONSTRAINT IF EXISTS "events_owner_fkey";
 ALTER TABLE IF EXISTS "events" DROP CONSTRAINT IF EXISTS "events_game_id_fkey";
 ALTER TABLE IF EXISTS "events" DROP CONSTRAINT IF EXISTS "events_store_id_fkey";
 ALTER TABLE IF EXISTS "quizzes" DROP CONSTRAINT IF EXISTS "quizzes_event_id_fkey";

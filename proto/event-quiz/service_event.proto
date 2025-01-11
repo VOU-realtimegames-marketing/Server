@@ -3,9 +3,11 @@ syntax = "proto3";
 package vou.proto;
 
 import "event-quiz/rpc_create_event.proto";
+import "event-quiz/rpc_get_events_of_owner.proto";
 
 option go_package = "VOU-Server/proto/gen";
 
 service EventService {
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
+  rpc GetAllEventsOfOwner(GetEventsOfOwnerRequest) returns (GetEventsOfOwnerResponse) {}
 }

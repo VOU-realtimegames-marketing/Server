@@ -18,5 +18,10 @@ func (server *Server) CreateEvent(ctx context.Context, req *gen.CreateEventReque
 		return nil, status.Errorf(codes.PermissionDenied, "unauthorized action: %s", err)
 	}
 
+	req.Owner = res.User.Username
 	return server.eventClient.CreateEvent(ctx, req)
+}
+
+func (server *Server) GetAllEventsOfOwner(ctx context.Context, req *gen.GetEventsOfOwnerRequest) (*gen.GetEventsOfOwnerResponse, error) {
+	return server.eventClient.GetAllEventsOfOwner(ctx, req)
 }

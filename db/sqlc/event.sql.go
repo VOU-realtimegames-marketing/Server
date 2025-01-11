@@ -14,6 +14,7 @@ import (
 
 const createEvent = `-- name: CreateEvent :one
 INSERT INTO events (
+  owner,
   game_id,
   store_id,
   name,
@@ -23,11 +24,12 @@ INSERT INTO events (
   start_time,
   end_time
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8
-) RETURNING id, game_id, store_id, name, photo, voucher_quantity, status, start_time, end_time
+  $1, $2, $3, $4, $5, $6, $7, $8, $9
+) RETURNING id, game_id, store_id, owner, name, photo, voucher_quantity, status, start_time, end_time
 `
 
 type CreateEventParams struct {
+	Owner           string       `json:"owner"`
 	GameID          int64        `json:"game_id"`
 	StoreID         int64        `json:"store_id"`
 	Name            string       `json:"name"`
@@ -40,6 +42,7 @@ type CreateEventParams struct {
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
 	row := q.db.QueryRow(ctx, createEvent,
+		arg.Owner,
 		arg.GameID,
 		arg.StoreID,
 		arg.Name,
@@ -54,6 +57,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		&i.ID,
 		&i.GameID,
 		&i.StoreID,
+		&i.Owner,
 		&i.Name,
 		&i.Photo,
 		&i.VoucherQuantity,
@@ -62,6 +66,60 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		&i.EndTime,
 	)
 	return i, err
+}
+
+const listEventsOfOwner = `-- name: ListEventsOfOwner :many
+SELECT E.id, E.owner, E.game_id, E.store_id, E.name, E.photo, E.voucher_quantity, E.status, E.start_time, E.end_time, G.type as game_type, S.name as store
+FROM events E, games G, stores S
+WHERE E.game_id = G.id AND E.store_id = S.id AND E.owner = $1
+`
+
+type ListEventsOfOwnerRow struct {
+	ID              int64        `json:"id"`
+	Owner           string       `json:"owner"`
+	GameID          int64        `json:"game_id"`
+	StoreID         int64        `json:"store_id"`
+	Name            string       `json:"name"`
+	Photo           string       `json:"photo"`
+	VoucherQuantity int32        `json:"voucher_quantity"`
+	Status          EventsStatus `json:"status"`
+	StartTime       time.Time    `json:"start_time"`
+	EndTime         time.Time    `json:"end_time"`
+	GameType        string       `json:"game_type"`
+	Store           string       `json:"store"`
+}
+
+func (q *Queries) ListEventsOfOwner(ctx context.Context, owner string) ([]ListEventsOfOwnerRow, error) {
+	rows, err := q.db.Query(ctx, listEventsOfOwner, owner)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventsOfOwnerRow{}
+	for rows.Next() {
+		var i ListEventsOfOwnerRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Owner,
+			&i.GameID,
+			&i.StoreID,
+			&i.Name,
+			&i.Photo,
+			&i.VoucherQuantity,
+			&i.Status,
+			&i.StartTime,
+			&i.EndTime,
+			&i.GameType,
+			&i.Store,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateEvent = `-- name: UpdateEvent :one
@@ -73,7 +131,7 @@ SET
   start_time = COALESCE($4,start_time),
   end_time = COALESCE($5,end_time)
 WHERE id = $6
-RETURNING id, game_id, store_id, name, photo, voucher_quantity, status, start_time, end_time
+RETURNING id, game_id, store_id, owner, name, photo, voucher_quantity, status, start_time, end_time
 `
 
 type UpdateEventParams struct {
@@ -99,6 +157,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event
 		&i.ID,
 		&i.GameID,
 		&i.StoreID,
+		&i.Owner,
 		&i.Name,
 		&i.Photo,
 		&i.VoucherQuantity,

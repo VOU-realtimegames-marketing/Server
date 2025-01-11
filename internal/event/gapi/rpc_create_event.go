@@ -24,6 +24,7 @@ const (
 func (server *Server) CreateEvent(ctx context.Context, req *gen.CreateEventRequest) (*gen.CreateEventResponse, error) {
 	arg := db.CreateEventTxParams{
 		CreateEventParams: db.CreateEventParams{
+			Owner:           req.GetOwner(),
 			GameID:          req.GetGameId(),
 			StoreID:         req.GetStoreId(),
 			Name:            req.GetName(),

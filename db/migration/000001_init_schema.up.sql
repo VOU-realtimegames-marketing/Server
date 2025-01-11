@@ -84,6 +84,7 @@ CREATE TABLE "events" (
   "id" bigserial PRIMARY KEY,
   "game_id" bigint NOT NULL,
   "store_id" bigint NOT NULL,
+  "owner" varchar NOT NULL,
   "name" varchar NOT NULL,
   "photo" varchar NOT NULL DEFAULT 'default-game.jpg',
   "voucher_quantity" int NOT NULL DEFAULT 5,
@@ -142,6 +143,8 @@ ALTER TABLE "voucher_owner" ADD FOREIGN KEY ("voucher_id") REFERENCES "vouchers"
 ALTER TABLE "stores" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username");
 
 ALTER TABLE "branchs" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
+
+ALTER TABLE "events" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username");
 
 ALTER TABLE "events" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("id");
 

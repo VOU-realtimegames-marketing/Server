@@ -19,6 +19,7 @@ import "counterpart/rpc_get_branchs.proto";
 import "counterpart/rpc_delete_branch.proto";
 
 import "event-quiz/rpc_create_event.proto";
+import "event-quiz/rpc_get_events_of_owner.proto";
 
 option go_package = "VOU-Server/proto/gen";
 
@@ -99,6 +100,11 @@ service Gateway {
     option (google.api.http) = {
       post: "/api/v1/create_event"
       body: "*"
+    };
+  }
+  rpc GetAllEventsOfOwner(GetEventsOfOwnerRequest) returns (GetEventsOfOwnerResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/events/{owner}"
     };
   }
 
