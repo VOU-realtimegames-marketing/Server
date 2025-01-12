@@ -35,6 +35,7 @@ const (
 	Gateway_GetAllEvents_FullMethodName        = "/vou.proto.Gateway/GetAllEvents"
 	Gateway_GetAllEventsOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllEventsOfOwner"
 	Gateway_GetEventById_FullMethodName        = "/vou.proto.Gateway/GetEventById"
+	Gateway_UpdateEventStatus_FullMethodName   = "/vou.proto.Gateway/UpdateEventStatus"
 	Gateway_GetQuizzesByEventId_FullMethodName = "/vou.proto.Gateway/GetQuizzesByEventId"
 )
 
@@ -61,6 +62,7 @@ type GatewayClient interface {
 	GetAllEvents(ctx context.Context, in *GetAllEventsRequest, opts ...grpc.CallOption) (*GetAllEventsResponse, error)
 	GetAllEventsOfOwner(ctx context.Context, in *GetEventsOfOwnerRequest, opts ...grpc.CallOption) (*GetEventsOfOwnerResponse, error)
 	GetEventById(ctx context.Context, in *GetEventByIdRequest, opts ...grpc.CallOption) (*GetEventByIdResponse, error)
+	UpdateEventStatus(ctx context.Context, in *UpdateEventStatusRequest, opts ...grpc.CallOption) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error)
 }
 
@@ -232,6 +234,16 @@ func (c *gatewayClient) GetEventById(ctx context.Context, in *GetEventByIdReques
 	return out, nil
 }
 
+func (c *gatewayClient) UpdateEventStatus(ctx context.Context, in *UpdateEventStatusRequest, opts ...grpc.CallOption) (*UpdateEventStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateEventStatusResponse)
+	err := c.cc.Invoke(ctx, Gateway_UpdateEventStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *gatewayClient) GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetQuizzesByEventIdResponse)
@@ -265,6 +277,7 @@ type GatewayServer interface {
 	GetAllEvents(context.Context, *GetAllEventsRequest) (*GetAllEventsResponse, error)
 	GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error)
 	GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error)
+	UpdateEventStatus(context.Context, *UpdateEventStatusRequest) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
@@ -323,6 +336,9 @@ func (UnimplementedGatewayServer) GetAllEventsOfOwner(context.Context, *GetEvent
 }
 func (UnimplementedGatewayServer) GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventById not implemented")
+}
+func (UnimplementedGatewayServer) UpdateEventStatus(context.Context, *UpdateEventStatusRequest) (*UpdateEventStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEventStatus not implemented")
 }
 func (UnimplementedGatewayServer) GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQuizzesByEventId not implemented")
@@ -636,6 +652,24 @@ func _Gateway_GetEventById_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_UpdateEventStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEventStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).UpdateEventStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_UpdateEventStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).UpdateEventStatus(ctx, req.(*UpdateEventStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Gateway_GetQuizzesByEventId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetQuizzesByEventIdRequest)
 	if err := dec(in); err != nil {
@@ -724,6 +758,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEventById",
 			Handler:    _Gateway_GetEventById_Handler,
+		},
+		{
+			MethodName: "UpdateEventStatus",
+			Handler:    _Gateway_UpdateEventStatus_Handler,
 		},
 		{
 			MethodName: "GetQuizzesByEventId",

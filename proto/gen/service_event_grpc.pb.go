@@ -23,6 +23,7 @@ const (
 	EventService_GetAllEventsOfOwner_FullMethodName = "/vou.proto.EventService/GetAllEventsOfOwner"
 	EventService_GetAllEvents_FullMethodName        = "/vou.proto.EventService/GetAllEvents"
 	EventService_GetEventById_FullMethodName        = "/vou.proto.EventService/GetEventById"
+	EventService_UpdateEventStatus_FullMethodName   = "/vou.proto.EventService/UpdateEventStatus"
 	EventService_GetQuizzesByEventId_FullMethodName = "/vou.proto.EventService/GetQuizzesByEventId"
 )
 
@@ -34,6 +35,7 @@ type EventServiceClient interface {
 	GetAllEventsOfOwner(ctx context.Context, in *GetEventsOfOwnerRequest, opts ...grpc.CallOption) (*GetEventsOfOwnerResponse, error)
 	GetAllEvents(ctx context.Context, in *GetAllEventsRequest, opts ...grpc.CallOption) (*GetAllEventsResponse, error)
 	GetEventById(ctx context.Context, in *GetEventByIdRequest, opts ...grpc.CallOption) (*GetEventByIdResponse, error)
+	UpdateEventStatus(ctx context.Context, in *UpdateEventStatusRequest, opts ...grpc.CallOption) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error)
 }
 
@@ -85,6 +87,16 @@ func (c *eventServiceClient) GetEventById(ctx context.Context, in *GetEventByIdR
 	return out, nil
 }
 
+func (c *eventServiceClient) UpdateEventStatus(ctx context.Context, in *UpdateEventStatusRequest, opts ...grpc.CallOption) (*UpdateEventStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateEventStatusResponse)
+	err := c.cc.Invoke(ctx, EventService_UpdateEventStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *eventServiceClient) GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetQuizzesByEventIdResponse)
@@ -103,6 +115,7 @@ type EventServiceServer interface {
 	GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error)
 	GetAllEvents(context.Context, *GetAllEventsRequest) (*GetAllEventsResponse, error)
 	GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error)
+	UpdateEventStatus(context.Context, *UpdateEventStatusRequest) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
@@ -125,6 +138,9 @@ func (UnimplementedEventServiceServer) GetAllEvents(context.Context, *GetAllEven
 }
 func (UnimplementedEventServiceServer) GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventById not implemented")
+}
+func (UnimplementedEventServiceServer) UpdateEventStatus(context.Context, *UpdateEventStatusRequest) (*UpdateEventStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEventStatus not implemented")
 }
 func (UnimplementedEventServiceServer) GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQuizzesByEventId not implemented")
@@ -222,6 +238,24 @@ func _EventService_GetEventById_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_UpdateEventStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEventStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).UpdateEventStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_UpdateEventStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).UpdateEventStatus(ctx, req.(*UpdateEventStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _EventService_GetQuizzesByEventId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetQuizzesByEventIdRequest)
 	if err := dec(in); err != nil {
@@ -262,6 +296,10 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEventById",
 			Handler:    _EventService_GetEventById_Handler,
+		},
+		{
+			MethodName: "UpdateEventStatus",
+			Handler:    _EventService_UpdateEventStatus_Handler,
 		},
 		{
 			MethodName: "GetQuizzesByEventId",

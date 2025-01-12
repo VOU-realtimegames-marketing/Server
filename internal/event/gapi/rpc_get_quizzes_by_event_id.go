@@ -13,12 +13,14 @@ import (
 )
 
 func (server *Server) GetQuizzesByEventId(ctx context.Context, req *gen.GetQuizzesByEventIdRequest) (*gen.GetQuizzesByEventIdResponse, error) {
-	_, err := server.store.GetEventByIdAndOwner(ctx, db.GetEventByIdAndOwnerParams{
-		ID:    req.GetEventId(),
-		Owner: req.GetOwner(),
-	})
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "cannot get quizzes of event that you do not own")
+	if req.GetIsAdmin() == false {
+		_, err := server.store.GetEventByIdAndOwner(ctx, db.GetEventByIdAndOwnerParams{
+			ID:    req.GetEventId(),
+			Owner: req.GetOwner(),
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "cannot get quizzes of event that you do not own")
+		}
 	}
 
 	quiz, err := server.store.GetQuizzesByEventId(ctx, req.GetEventId())
