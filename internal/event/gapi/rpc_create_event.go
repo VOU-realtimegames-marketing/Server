@@ -29,8 +29,8 @@ func (server *Server) CreateEvent(ctx context.Context, req *gen.CreateEventReque
 			StoreID:         req.GetStoreId(),
 			Name:            req.GetName(),
 			VoucherQuantity: req.GetVoucherQuantity(),
-			// StartTime:       req.GetStartTime().AsTime(),
-			// EndTime:         req.GetEndTime().AsTime(),
+			StartTime:       req.GetStartTime().AsTime(),
+			EndTime:         req.GetEndTime().AsTime(),
 		},
 	}
 
