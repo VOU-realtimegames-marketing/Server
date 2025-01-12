@@ -22,6 +22,10 @@ func (server *Server) CreateEvent(ctx context.Context, req *gen.CreateEventReque
 	return server.eventClient.CreateEvent(ctx, req)
 }
 
+func (server *Server) GetAllEvents(ctx context.Context, req *gen.GetAllEventsRequest) (*gen.GetAllEventsResponse, error) {
+	return server.eventClient.GetAllEvents(ctx, req)
+}
+
 func (server *Server) GetAllEventsOfOwner(ctx context.Context, req *gen.GetEventsOfOwnerRequest) (*gen.GetEventsOfOwnerResponse, error) {
 	return server.eventClient.GetAllEventsOfOwner(ctx, req)
 }

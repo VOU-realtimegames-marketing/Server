@@ -119,6 +119,60 @@ func (q *Queries) GetEventByIdAndOwner(ctx context.Context, arg GetEventByIdAndO
 	return i, err
 }
 
+const listEvents = `-- name: ListEvents :many
+SELECT E.id, E.owner, E.game_id, E.store_id, E.name, E.photo, E.voucher_quantity, E.status, E.start_time, E.end_time, G.type as game_type, S.name as store
+FROM events E, games G, stores S
+WHERE E.game_id = G.id AND E.store_id = S.id
+`
+
+type ListEventsRow struct {
+	ID              int64        `json:"id"`
+	Owner           string       `json:"owner"`
+	GameID          int64        `json:"game_id"`
+	StoreID         int64        `json:"store_id"`
+	Name            string       `json:"name"`
+	Photo           string       `json:"photo"`
+	VoucherQuantity int32        `json:"voucher_quantity"`
+	Status          EventsStatus `json:"status"`
+	StartTime       time.Time    `json:"start_time"`
+	EndTime         time.Time    `json:"end_time"`
+	GameType        string       `json:"game_type"`
+	Store           string       `json:"store"`
+}
+
+func (q *Queries) ListEvents(ctx context.Context) ([]ListEventsRow, error) {
+	rows, err := q.db.Query(ctx, listEvents)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventsRow{}
+	for rows.Next() {
+		var i ListEventsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Owner,
+			&i.GameID,
+			&i.StoreID,
+			&i.Name,
+			&i.Photo,
+			&i.VoucherQuantity,
+			&i.Status,
+			&i.StartTime,
+			&i.EndTime,
+			&i.GameType,
+			&i.Store,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listEventsOfOwner = `-- name: ListEventsOfOwner :many
 SELECT E.id, E.owner, E.game_id, E.store_id, E.name, E.photo, E.voucher_quantity, E.status, E.start_time, E.end_time, G.type as game_type, S.name as store
 FROM events E, games G, stores S

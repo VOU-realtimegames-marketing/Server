@@ -27,6 +27,7 @@ type Querier interface {
 	GetStoreByIdAndOwner(ctx context.Context, arg GetStoreByIdAndOwnerParams) (Store, error)
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
 	ListBranchs(ctx context.Context, storeID int64) ([]Branch, error)
+	ListEvents(ctx context.Context) ([]ListEventsRow, error)
 	ListEventsOfOwner(ctx context.Context, owner string) ([]ListEventsOfOwnerRow, error)
 	ListStoresOfOwner(ctx context.Context, owner string) ([]Store, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)

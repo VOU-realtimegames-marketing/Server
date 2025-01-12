@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func convertEventsOfOwner(events []db.ListEventsOfOwnerRow) []*gen.Event {
+func convertAllEvents(events []db.ListEventsRow) []*gen.Event {
 	genEvents := make([]*gen.Event, len(events))
 	for i, event := range events {
 		genEvents[i] = &gen.Event{
@@ -23,15 +23,15 @@ func convertEventsOfOwner(events []db.ListEventsOfOwnerRow) []*gen.Event {
 			Status:          string(event.Status),
 			StartTime:       timestamppb.New(event.StartTime),
 			EndTime:         timestamppb.New(event.EndTime),
-			GameType:        &event.GameType,
 			Store:           &event.Store,
+			GameType:        &event.GameType,
 		}
 	}
 	return genEvents
 }
 
-func (server *Server) GetAllEventsOfOwner(ctx context.Context, req *gen.GetEventsOfOwnerRequest) (*gen.GetEventsOfOwnerResponse, error) {
-	events, err := server.store.ListEventsOfOwner(ctx, req.GetOwner())
+func (server *Server) GetAllEvents(ctx context.Context, req *gen.GetAllEventsRequest) (*gen.GetAllEventsResponse, error) {
+	events, err := server.store.ListEvents(ctx)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "no event found")
@@ -39,9 +39,9 @@ func (server *Server) GetAllEventsOfOwner(ctx context.Context, req *gen.GetEvent
 		return nil, status.Errorf(codes.Internal, "failed to get events: %s", err)
 	}
 
-	genEvents := convertEventsOfOwner(events)
+	genEvents := convertAllEvents(events)
 
-	rsp := &gen.GetEventsOfOwnerResponse{
+	rsp := &gen.GetAllEventsResponse{
 		Events: genEvents,
 	}
 
