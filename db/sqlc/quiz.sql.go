@@ -37,3 +37,21 @@ func (q *Queries) CreateQuiz(ctx context.Context, arg CreateQuizParams) (Quiz, e
 	)
 	return i, err
 }
+
+const getQuizzesByEventId = `-- name: GetQuizzesByEventId :one
+SELECT id, event_id, content, quiz_genre, created_at FROM quizzes
+WHERE event_id = $1 LIMIT 1
+`
+
+func (q *Queries) GetQuizzesByEventId(ctx context.Context, eventID int64) (Quiz, error) {
+	row := q.db.QueryRow(ctx, getQuizzesByEventId, eventID)
+	var i Quiz
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.Content,
+		&i.QuizGenre,
+		&i.CreatedAt,
+	)
+	return i, err
+}

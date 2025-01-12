@@ -68,6 +68,57 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 	return i, err
 }
 
+const getEventById = `-- name: GetEventById :one
+SELECT id, game_id, store_id, owner, name, photo, voucher_quantity, status, start_time, end_time FROM events
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetEventById(ctx context.Context, id int64) (Event, error) {
+	row := q.db.QueryRow(ctx, getEventById, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.StoreID,
+		&i.Owner,
+		&i.Name,
+		&i.Photo,
+		&i.VoucherQuantity,
+		&i.Status,
+		&i.StartTime,
+		&i.EndTime,
+	)
+	return i, err
+}
+
+const getEventByIdAndOwner = `-- name: GetEventByIdAndOwner :one
+SELECT id, game_id, store_id, owner, name, photo, voucher_quantity, status, start_time, end_time FROM events
+WHERE id = $1 AND owner = $2 LIMIT 1
+`
+
+type GetEventByIdAndOwnerParams struct {
+	ID    int64  `json:"id"`
+	Owner string `json:"owner"`
+}
+
+func (q *Queries) GetEventByIdAndOwner(ctx context.Context, arg GetEventByIdAndOwnerParams) (Event, error) {
+	row := q.db.QueryRow(ctx, getEventByIdAndOwner, arg.ID, arg.Owner)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.StoreID,
+		&i.Owner,
+		&i.Name,
+		&i.Photo,
+		&i.VoucherQuantity,
+		&i.Status,
+		&i.StartTime,
+		&i.EndTime,
+	)
+	return i, err
+}
+
 const listEventsOfOwner = `-- name: ListEventsOfOwner :many
 SELECT E.id, E.owner, E.game_id, E.store_id, E.name, E.photo, E.voucher_quantity, E.status, E.start_time, E.end_time, G.type as game_type, S.name as store
 FROM events E, games G, stores S

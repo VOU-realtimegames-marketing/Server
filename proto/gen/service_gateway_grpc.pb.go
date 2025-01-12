@@ -33,6 +33,8 @@ const (
 	Gateway_DeleteBranch_FullMethodName        = "/vou.proto.Gateway/DeleteBranch"
 	Gateway_CreateEvent_FullMethodName         = "/vou.proto.Gateway/CreateEvent"
 	Gateway_GetAllEventsOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllEventsOfOwner"
+	Gateway_GetEventById_FullMethodName        = "/vou.proto.Gateway/GetEventById"
+	Gateway_GetQuizzesByEventId_FullMethodName = "/vou.proto.Gateway/GetQuizzesByEventId"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -56,6 +58,8 @@ type GatewayClient interface {
 	// BEGIN EVENT-QUIZ
 	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
 	GetAllEventsOfOwner(ctx context.Context, in *GetEventsOfOwnerRequest, opts ...grpc.CallOption) (*GetEventsOfOwnerResponse, error)
+	GetEventById(ctx context.Context, in *GetEventByIdRequest, opts ...grpc.CallOption) (*GetEventByIdResponse, error)
+	GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error)
 }
 
 type gatewayClient struct {
@@ -206,6 +210,26 @@ func (c *gatewayClient) GetAllEventsOfOwner(ctx context.Context, in *GetEventsOf
 	return out, nil
 }
 
+func (c *gatewayClient) GetEventById(ctx context.Context, in *GetEventByIdRequest, opts ...grpc.CallOption) (*GetEventByIdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventByIdResponse)
+	err := c.cc.Invoke(ctx, Gateway_GetEventById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayClient) GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetQuizzesByEventIdResponse)
+	err := c.cc.Invoke(ctx, Gateway_GetQuizzesByEventId_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility.
@@ -227,6 +251,8 @@ type GatewayServer interface {
 	// BEGIN EVENT-QUIZ
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error)
+	GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error)
+	GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -278,6 +304,12 @@ func (UnimplementedGatewayServer) CreateEvent(context.Context, *CreateEventReque
 }
 func (UnimplementedGatewayServer) GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllEventsOfOwner not implemented")
+}
+func (UnimplementedGatewayServer) GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventById not implemented")
+}
+func (UnimplementedGatewayServer) GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetQuizzesByEventId not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 func (UnimplementedGatewayServer) testEmbeddedByValue()                 {}
@@ -552,6 +584,42 @@ func _Gateway_GetAllEventsOfOwner_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_GetEventById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).GetEventById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_GetEventById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).GetEventById(ctx, req.(*GetEventByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Gateway_GetQuizzesByEventId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetQuizzesByEventIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).GetQuizzesByEventId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_GetQuizzesByEventId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).GetQuizzesByEventId(ctx, req.(*GetQuizzesByEventIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -614,6 +682,14 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllEventsOfOwner",
 			Handler:    _Gateway_GetAllEventsOfOwner_Handler,
+		},
+		{
+			MethodName: "GetEventById",
+			Handler:    _Gateway_GetEventById_Handler,
+		},
+		{
+			MethodName: "GetQuizzesByEventId",
+			Handler:    _Gateway_GetQuizzesByEventId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

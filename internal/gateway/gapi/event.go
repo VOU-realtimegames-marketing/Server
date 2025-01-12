@@ -25,3 +25,21 @@ func (server *Server) CreateEvent(ctx context.Context, req *gen.CreateEventReque
 func (server *Server) GetAllEventsOfOwner(ctx context.Context, req *gen.GetEventsOfOwnerRequest) (*gen.GetEventsOfOwnerResponse, error) {
 	return server.eventClient.GetAllEventsOfOwner(ctx, req)
 }
+
+func (server *Server) GetEventById(ctx context.Context, req *gen.GetEventByIdRequest) (*gen.GetEventByIdResponse, error) {
+	return server.eventClient.GetEventById(ctx, req)
+}
+
+func (server *Server) GetQuizzesByEventId(ctx context.Context, req *gen.GetQuizzesByEventIdRequest) (*gen.GetQuizzesByEventIdResponse, error) {
+	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	if res.User.Role != counterpartRole {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	req.Owner = res.User.Username
+	return server.eventClient.GetQuizzesByEventId(ctx, req)
+}

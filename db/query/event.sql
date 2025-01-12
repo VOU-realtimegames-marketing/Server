@@ -28,3 +28,11 @@ RETURNING *;
 SELECT E.id, E.owner, E.game_id, E.store_id, E.name, E.photo, E.voucher_quantity, E.status, E.start_time, E.end_time, G.type as game_type, S.name as store
 FROM events E, games G, stores S
 WHERE E.game_id = G.id AND E.store_id = S.id AND E.owner = $1;
+
+-- name: GetEventById :one
+SELECT * FROM events
+WHERE id = $1 LIMIT 1;
+
+-- name: GetEventByIdAndOwner :one
+SELECT * FROM events
+WHERE id = $1 AND owner = $2 LIMIT 1;

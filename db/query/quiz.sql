@@ -6,3 +6,7 @@ INSERT INTO quizzes (
 ) VALUES (
   $1, $2, $3
 ) RETURNING *;
+
+-- name: GetQuizzesByEventId :one
+SELECT * FROM quizzes
+WHERE event_id = $1 LIMIT 1;

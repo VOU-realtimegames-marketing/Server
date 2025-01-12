@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	EventService_CreateEvent_FullMethodName         = "/vou.proto.EventService/CreateEvent"
 	EventService_GetAllEventsOfOwner_FullMethodName = "/vou.proto.EventService/GetAllEventsOfOwner"
+	EventService_GetEventById_FullMethodName        = "/vou.proto.EventService/GetEventById"
+	EventService_GetQuizzesByEventId_FullMethodName = "/vou.proto.EventService/GetQuizzesByEventId"
 )
 
 // EventServiceClient is the client API for EventService service.
@@ -29,6 +31,8 @@ const (
 type EventServiceClient interface {
 	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
 	GetAllEventsOfOwner(ctx context.Context, in *GetEventsOfOwnerRequest, opts ...grpc.CallOption) (*GetEventsOfOwnerResponse, error)
+	GetEventById(ctx context.Context, in *GetEventByIdRequest, opts ...grpc.CallOption) (*GetEventByIdResponse, error)
+	GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error)
 }
 
 type eventServiceClient struct {
@@ -59,12 +63,34 @@ func (c *eventServiceClient) GetAllEventsOfOwner(ctx context.Context, in *GetEve
 	return out, nil
 }
 
+func (c *eventServiceClient) GetEventById(ctx context.Context, in *GetEventByIdRequest, opts ...grpc.CallOption) (*GetEventByIdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventByIdResponse)
+	err := c.cc.Invoke(ctx, EventService_GetEventById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetQuizzesByEventIdResponse)
+	err := c.cc.Invoke(ctx, EventService_GetQuizzesByEventId_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EventServiceServer is the server API for EventService service.
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility.
 type EventServiceServer interface {
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error)
+	GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error)
+	GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -80,6 +106,12 @@ func (UnimplementedEventServiceServer) CreateEvent(context.Context, *CreateEvent
 }
 func (UnimplementedEventServiceServer) GetAllEventsOfOwner(context.Context, *GetEventsOfOwnerRequest) (*GetEventsOfOwnerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllEventsOfOwner not implemented")
+}
+func (UnimplementedEventServiceServer) GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventById not implemented")
+}
+func (UnimplementedEventServiceServer) GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetQuizzesByEventId not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 func (UnimplementedEventServiceServer) testEmbeddedByValue()                      {}
@@ -138,6 +170,42 @@ func _EventService_GetAllEventsOfOwner_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_GetEventById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetEventById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_GetEventById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetEventById(ctx, req.(*GetEventByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_GetQuizzesByEventId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetQuizzesByEventIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetQuizzesByEventId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_GetQuizzesByEventId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetQuizzesByEventId(ctx, req.(*GetQuizzesByEventIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +220,14 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllEventsOfOwner",
 			Handler:    _EventService_GetAllEventsOfOwner_Handler,
+		},
+		{
+			MethodName: "GetEventById",
+			Handler:    _EventService_GetEventById_Handler,
+		},
+		{
+			MethodName: "GetQuizzesByEventId",
+			Handler:    _EventService_GetQuizzesByEventId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

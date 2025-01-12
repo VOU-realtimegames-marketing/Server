@@ -20,6 +20,9 @@ type Querier interface {
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
 	DeleteBranch(ctx context.Context, id int64) error
 	DeleteStore(ctx context.Context, arg DeleteStoreParams) error
+	GetEventById(ctx context.Context, id int64) (Event, error)
+	GetEventByIdAndOwner(ctx context.Context, arg GetEventByIdAndOwnerParams) (Event, error)
+	GetQuizzesByEventId(ctx context.Context, eventID int64) (Quiz, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetStoreByIdAndOwner(ctx context.Context, arg GetStoreByIdAndOwnerParams) (Store, error)
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
