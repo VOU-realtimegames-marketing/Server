@@ -37,7 +37,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Cannot connect to DB")
 	}
 
-	// runDBMigration(config.MigrationURL, config.DBSource) // Uncomment this line when running docker-compose up
+	runDBMigration(config.MigrationURL, config.DBSource) // Uncomment this line when running docker-compose up
 
 	store := db.NewStore(connPool)
 
@@ -55,6 +55,10 @@ func runDBMigration(migrationURL string, dbSource string) {
 	migration, err := migrate.New(migrationURL, dbSource)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot create new migrate instance")
+	}
+
+	if err = migration.Down(); err != nil {
+		log.Fatal().Err(err).Msg("failed to run migrate down")
 	}
 
 	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
