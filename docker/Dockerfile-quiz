@@ -1,0 +1,16 @@
+# Build stage
+FROM golang:1.23-alpine3.20 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o quiz-service ./cmd/quiz/main.go
+
+# Use a smaller base image for the final image
+FROM alpine:3.20
+WORKDIR /app
+COPY --from=builder /app/quiz-service .
+COPY cmd/quiz/config/app.env ./config/
+
+# Command to run the executable
+CMD ["/app/quiz-service"]

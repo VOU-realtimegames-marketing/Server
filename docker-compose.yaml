@@ -16,8 +16,82 @@ services:
       - data-volume:/var/lib/postgresql/data
   redis:
     image: redis:7-alpine
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
     ports:
-      - "6379:6379"
+      - "5672:5672" # Port AMQP
+      - "15672:15672" # Port Management UI (Web)
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq # Volume cho dữ liệu của queue RabbitMQ
+
+  auth:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-auth
+    ports:
+      - "50051:50051"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+      - REDIS_ADDRESS=redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  counterpart:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-counterpart
+    ports:
+      - "50052:50052"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+  quiz:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-quiz
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+      - RABBITMQ_ADDRESS=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+  event:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-event
+    ports:
+      - "50053:50053"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+      - RABBITMQ_ADDRESS=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+  gateway:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-gateway
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - AUTH_SERVER_ADDRESS=auth:50051
+      - COUNTERPART_SERVER_ADDRESS=counterpart:50052
+      - EVENT_SERVER_ADDRESS=event:50053
+    depends_on:
+      - auth
+      - counterpart
+      - quiz
+      - event
 
   pgadmin:
     image: dpage/pgadmin4
@@ -31,53 +105,6 @@ services:
       postgres:
         condition: service_healthy
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    ports:
-      - "5672:5672" # Port AMQP
-      - "15672:15672" # Port Management UI (Web)
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq # Volume cho dữ liệu của RabbitMQ
-
-  # auth:
-  #   build: 
-  #     context: .
-  #     dockerfile: ./docker/Dockerfile-auth
-  #   ports:
-  #     - "50051:50051"
-  #   environment:
-  #     - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
-  #     - REDIS_ADDRESS=redis:6379
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_started
-  # counterpart:
-  #   build: 
-  #     context: .
-  #     dockerfile: ./docker/Dockerfile-counterpart
-  #   ports:
-  #     - "50052:50052"
-  #   environment:
-  #     - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
-  # gateway:
-  #   build: 
-  #     context: .
-  #     dockerfile: ./docker/Dockerfile-gateway
-  #   ports:
-  #     - "8080:8080"
-  #     - "9090:9090"
-  #   environment:
-  #     - AUTH_SERVER_ADDRESS=auth:50051
-  #     - COUNTERPART_SERVER_ADDRESS=counterpart:50052
-  #   depends_on:
-  #     - auth
-  #     - counterpart
 volumes:
   data-volume:
   rabbitmq_data: 
