@@ -54,6 +54,7 @@ func (h *quizGenHandler) Handle(ctx context.Context, payload task.PayloadGenQuiz
 			EventID:   payload.EventId,
 			QuizGenre: payload.QuizGenre,
 			Content:   []byte(jsonStr),
+			QuizNum:   payload.QuizNum,
 		},
 		AfterCreate: func(quiz db.Quiz) error {
 			payloadQuizCreated := task.PayloadQuizCreated{

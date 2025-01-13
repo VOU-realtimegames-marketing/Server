@@ -13,20 +13,27 @@ const createQuiz = `-- name: CreateQuiz :one
 INSERT INTO quizzes (
   event_id,
   content,
-  quiz_genre
+  quiz_genre,
+  quiz_num
 ) VALUES (
-  $1, $2, $3
-) RETURNING id, event_id, content, quiz_genre, created_at
+  $1, $2, $3, $4
+) RETURNING id, event_id, content, quiz_genre, created_at, quiz_num
 `
 
 type CreateQuizParams struct {
 	EventID   int64  `json:"event_id"`
 	Content   []byte `json:"content"`
 	QuizGenre string `json:"quiz_genre"`
+	QuizNum   int32  `json:"quiz_num"`
 }
 
 func (q *Queries) CreateQuiz(ctx context.Context, arg CreateQuizParams) (Quiz, error) {
-	row := q.db.QueryRow(ctx, createQuiz, arg.EventID, arg.Content, arg.QuizGenre)
+	row := q.db.QueryRow(ctx, createQuiz,
+		arg.EventID,
+		arg.Content,
+		arg.QuizGenre,
+		arg.QuizNum,
+	)
 	var i Quiz
 	err := row.Scan(
 		&i.ID,
@@ -34,12 +41,13 @@ func (q *Queries) CreateQuiz(ctx context.Context, arg CreateQuizParams) (Quiz, e
 		&i.Content,
 		&i.QuizGenre,
 		&i.CreatedAt,
+		&i.QuizNum,
 	)
 	return i, err
 }
 
 const getQuizzesByEventId = `-- name: GetQuizzesByEventId :one
-SELECT id, event_id, content, quiz_genre, created_at FROM quizzes
+SELECT id, event_id, content, quiz_genre, created_at, quiz_num FROM quizzes
 WHERE event_id = $1 LIMIT 1
 `
 
@@ -52,6 +60,7 @@ func (q *Queries) GetQuizzesByEventId(ctx context.Context, eventID int64) (Quiz,
 		&i.Content,
 		&i.QuizGenre,
 		&i.CreatedAt,
+		&i.QuizNum,
 	)
 	return i, err
 }

@@ -95,6 +95,7 @@ type Quiz struct {
 	Content   []byte    `json:"content"`
 	QuizGenre string    `json:"quiz_genre"`
 	CreatedAt time.Time `json:"created_at"`
+	QuizNum   int32     `json:"quiz_num"`
 }
 
 type Session struct {
@@ -134,6 +135,13 @@ type User struct {
 	IsEmailVerified   bool      `json:"is_email_verified"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
+}
+
+type UserAnswer struct {
+	ID         int64  `json:"id"`
+	Username   string `json:"username"`
+	EventID    int64  `json:"event_id"`
+	NumCorrect int32  `json:"num_correct"`
 }
 
 type VerifyEmail struct {
