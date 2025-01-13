@@ -17,6 +17,7 @@ import "counterpart/rpc_delete_store.proto";
 import "counterpart/rpc_create_branch.proto";
 import "counterpart/rpc_get_branchs.proto";
 import "counterpart/rpc_delete_branch.proto";
+import "counterpart/rpc_cms.proto";
 
 import "event-quiz/rpc_create_event.proto";
 import "event-quiz/rpc_get_events_of_owner.proto";
@@ -95,6 +96,11 @@ service Gateway {
     option (google.api.http) = {
       delete: "/api/v1/branches/{id}"
       body: "*"
+    };
+  }
+  rpc GetCmsOverview(GetCmsOverviewRequest) returns (GetCmsOverviewResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/cms/overview"
     };
   }
   // END COUNTERPART

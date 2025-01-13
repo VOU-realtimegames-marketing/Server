@@ -10,6 +10,7 @@ import "counterpart/rpc_delete_store.proto";
 import "counterpart/rpc_create_branch.proto";
 import "counterpart/rpc_get_branchs.proto";
 import "counterpart/rpc_delete_branch.proto";
+import "counterpart/rpc_cms.proto";
 
 option go_package = "VOU-Server/proto/gen";
 
@@ -22,4 +23,5 @@ service CounterpartService {
   rpc CreateBranch(CreateBranchRequest) returns (CreateBranchResponse) {}
   rpc GetBranchs(GetBranchsRequest) returns (GetBranchsResponse) {}
   rpc DeleteBranch(DeleteBranchRequest) returns (DeleteBranchResponse) {}
+  rpc GetCmsOverview(GetCmsOverviewRequest) returns (GetCmsOverviewResponse) {}
 }

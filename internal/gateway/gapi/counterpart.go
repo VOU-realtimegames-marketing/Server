@@ -3,6 +3,7 @@ package gapi
 import (
 	"VOU-Server/proto/gen"
 	"context"
+	"log"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -113,4 +114,35 @@ func (server *Server) DeleteBranch(ctx context.Context, req *gen.DeleteBranchReq
 	}
 
 	return server.counterpartClient.DeleteBranch(ctx, req)
+}
+
+func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOverviewRequest) (*gen.GetCmsOverviewResponse, error) {
+	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
+
+	log.Print("GetCmsOverview: ", res.User)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	if res.User.Role != counterpartRole {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	req.Owner = res.User.Username
+
+	log.Print("GetCmsOverview_counterpart Owner: ", req.Owner)
+	return server.counterpartClient.GetCmsOverview(ctx, req)
+
+	// TODO: query real data from Database
+
+	// Fake data giống với frontend
+	// response := &gen.GetCmsOverviewResponse{
+	// 	TotalStore:             10,
+	// 	TotalBranch:            20,
+	// 	TotalEvent:             123,
+	// 	TotalUserPlay:          12513,
+	// 	LastMonthTotalUserPlay: 13000,
+	// }
+
+	// return response, nil
 }

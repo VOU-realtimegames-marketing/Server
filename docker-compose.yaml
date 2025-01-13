@@ -16,40 +16,68 @@ services:
       - data-volume:/var/lib/postgresql/data
   redis:
     image: redis:7-alpine
-  auth:
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile-auth
     ports:
-      - "50051:50051"
+      - "6379:6379"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
     environment:
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
-      - REDIS_ADDRESS=redis:6379
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8081:80"
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_started
-  counterpart:
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile-counterpart
-    ports:
-      - "50052:50052"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     environment:
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
-  gateway:
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile-gateway
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "8080:8080"
-      - "9090:9090"
-    environment:
-      - AUTH_SERVER_ADDRESS=auth:50051
-      - COUNTERPART_SERVER_ADDRESS=counterpart:50052
-    depends_on:
-      - auth
-      - counterpart
+      - "5672:5672" # Port AMQP
+      - "15672:15672" # Port Management UI (Web)
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq # Volume cho dữ liệu của RabbitMQ
+
+  # auth:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile-auth
+  #   ports:
+  #     - "50051:50051"
+  #   environment:
+  #     - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+  #     - REDIS_ADDRESS=redis:6379
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_started
+  # counterpart:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile-counterpart
+  #   ports:
+  #     - "50052:50052"
+  #   environment:
+  #     - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+  # gateway:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile-gateway
+  #   ports:
+  #     - "8080:8080"
+  #     - "9090:9090"
+  #   environment:
+  #     - AUTH_SERVER_ADDRESS=auth:50051
+  #     - COUNTERPART_SERVER_ADDRESS=counterpart:50052
+  #   depends_on:
+  #     - auth
+  #     - counterpart
 volumes:
   data-volume:
+  rabbitmq_data: 

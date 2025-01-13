@@ -5,6 +5,7 @@ import (
 	"VOU-Server/proto/gen"
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -43,6 +44,9 @@ func (server *Server) AuthorizeUser(ctx context.Context, req *gen.AuthorizeReque
 	if err != nil {
 		return nil, fmt.Errorf("invalid access token: %s", err)
 	}
+
+	// Log ownerId (payload.Username) ngay tại đây
+	log.Printf("AuthorizeUser: ownerId=%s", payload.Username)
 
 	user, err := server.store.GetUser(ctx, db.GetUserParams{
 		Username: pgtype.Text{
