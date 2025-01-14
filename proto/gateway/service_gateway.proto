@@ -103,6 +103,11 @@ service Gateway {
       get: "/api/v1/cms/overview"
     };
   }
+  rpc FakeCmsOverview(FakeCmsOverviewRequest) returns (FakeCmsOverviewResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/cms/fake_data"
+    };
+  }
   // END COUNTERPART
 
   // BEGIN EVENT-QUIZ

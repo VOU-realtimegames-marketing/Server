@@ -146,3 +146,7 @@ func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOvervie
 
 	// return response, nil
 }
+
+func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverviewRequest) (*gen.FakeCmsOverviewResponse, error) {
+	return server.counterpartClient.FakeCmsOverview(ctx, req)
+}

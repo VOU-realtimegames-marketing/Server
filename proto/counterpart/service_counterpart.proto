@@ -24,4 +24,5 @@ service CounterpartService {
   rpc GetBranchs(GetBranchsRequest) returns (GetBranchsResponse) {}
   rpc DeleteBranch(DeleteBranchRequest) returns (DeleteBranchResponse) {}
   rpc GetCmsOverview(GetCmsOverviewRequest) returns (GetCmsOverviewResponse) {}
+  rpc FakeCmsOverview(FakeCmsOverviewRequest) returns (FakeCmsOverviewResponse) {}
 }

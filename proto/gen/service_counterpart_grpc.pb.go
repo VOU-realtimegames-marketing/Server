@@ -27,6 +27,7 @@ const (
 	CounterpartService_GetBranchs_FullMethodName          = "/vou.proto.CounterpartService/GetBranchs"
 	CounterpartService_DeleteBranch_FullMethodName        = "/vou.proto.CounterpartService/DeleteBranch"
 	CounterpartService_GetCmsOverview_FullMethodName      = "/vou.proto.CounterpartService/GetCmsOverview"
+	CounterpartService_FakeCmsOverview_FullMethodName     = "/vou.proto.CounterpartService/FakeCmsOverview"
 )
 
 // CounterpartServiceClient is the client API for CounterpartService service.
@@ -41,6 +42,7 @@ type CounterpartServiceClient interface {
 	GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error)
 	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
 	GetCmsOverview(ctx context.Context, in *GetCmsOverviewRequest, opts ...grpc.CallOption) (*GetCmsOverviewResponse, error)
+	FakeCmsOverview(ctx context.Context, in *FakeCmsOverviewRequest, opts ...grpc.CallOption) (*FakeCmsOverviewResponse, error)
 }
 
 type counterpartServiceClient struct {
@@ -131,6 +133,16 @@ func (c *counterpartServiceClient) GetCmsOverview(ctx context.Context, in *GetCm
 	return out, nil
 }
 
+func (c *counterpartServiceClient) FakeCmsOverview(ctx context.Context, in *FakeCmsOverviewRequest, opts ...grpc.CallOption) (*FakeCmsOverviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FakeCmsOverviewResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_FakeCmsOverview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CounterpartServiceServer is the server API for CounterpartService service.
 // All implementations must embed UnimplementedCounterpartServiceServer
 // for forward compatibility.
@@ -143,6 +155,7 @@ type CounterpartServiceServer interface {
 	GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error)
 	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
 	GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error)
+	FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error)
 	mustEmbedUnimplementedCounterpartServiceServer()
 }
 
@@ -176,6 +189,9 @@ func (UnimplementedCounterpartServiceServer) DeleteBranch(context.Context, *Dele
 }
 func (UnimplementedCounterpartServiceServer) GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCmsOverview not implemented")
+}
+func (UnimplementedCounterpartServiceServer) FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FakeCmsOverview not implemented")
 }
 func (UnimplementedCounterpartServiceServer) mustEmbedUnimplementedCounterpartServiceServer() {}
 func (UnimplementedCounterpartServiceServer) testEmbeddedByValue()                            {}
@@ -342,6 +358,24 @@ func _CounterpartService_GetCmsOverview_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CounterpartService_FakeCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FakeCmsOverviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CounterpartServiceServer).FakeCmsOverview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CounterpartService_FakeCmsOverview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CounterpartServiceServer).FakeCmsOverview(ctx, req.(*FakeCmsOverviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CounterpartService_ServiceDesc is the grpc.ServiceDesc for CounterpartService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -380,6 +414,10 @@ var CounterpartService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCmsOverview",
 			Handler:    _CounterpartService_GetCmsOverview_Handler,
+		},
+		{
+			MethodName: "FakeCmsOverview",
+			Handler:    _CounterpartService_FakeCmsOverview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

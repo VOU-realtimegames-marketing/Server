@@ -46,3 +46,7 @@ message GetCmsOverviewResponse {
     repeated VoucherStats chart_voucher = 8;    // Thống kê voucher theo tháng
     repeated UserStoreStats chart_user_store = 9; // Thống kê user theo cửa hàng
 }
+
+message FakeCmsOverviewRequest {}
+
+message FakeCmsOverviewResponse {}

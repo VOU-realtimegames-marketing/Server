@@ -1,32 +1,109 @@
+-- name: CreateFakeUser :one
+INSERT INTO users (username, hashed_password, full_name, email, role, created_at)
+VALUES ($1, $2, $3, $4, $5, NOW())
+ON CONFLICT (username) DO UPDATE SET 
+    hashed_password = EXCLUDED.hashed_password,
+    full_name = EXCLUDED.full_name,
+    email = EXCLUDED.email,
+    role = EXCLUDED.role,
+    created_at = EXCLUDED.created_at
+RETURNING username;
+
+-- name: CheckStoreExists :one
+SELECT COALESCE((SELECT id 
+                 FROM stores 
+                 WHERE name = $1 AND owner = $2 
+                 LIMIT 1), 0) AS id;
+
+-- name: CreateFakeStore :one
+INSERT INTO stores (name, owner, business_type)
+VALUES ($1, $2, $3)
+RETURNING id;
+
+-- name: CreateFakeBranch :one
+INSERT INTO branchs (store_id, name, position, city_name, country, address, emoji)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (store_id, name) DO NOTHING
+RETURNING id;
+
+-- name: CheckGameExists :one
+SELECT id 
+FROM games
+WHERE type = $1;
+
+-- name: CreateGame :one
+INSERT INTO games (name, photo, type, play_guide, gift_allowed)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id;
+
+-- name: CheckEventExists :one
+SELECT id 
+FROM events
+WHERE owner = $1 
+  AND game_id = $2 
+  AND store_id = $3 
+  AND name = $4;
+
+-- name: CreateFakeEvent :one
+INSERT INTO events (game_id, store_id, owner, name, photo, voucher_quantity, status, start_time, end_time)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id;
+
+-- name: CheckVoucherExists :one
+SELECT id 
+FROM vouchers
+WHERE event_id = $1 AND qr_code = $2 AND type = $3;
+
+-- name: CreateVoucher :one
+INSERT INTO vouchers (event_id, qr_code, type, status, expires_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id;
+
+-- name: CheckVoucherOwnerExists :one
+SELECT id 
+FROM voucher_owner
+WHERE username = $1 AND voucher_id = $2;
+
+-- name: CreateVoucherOwner :one
+INSERT INTO voucher_owner (username, voucher_id, created_at)
+VALUES ($1, $2, $3)
+RETURNING id;
+
+-- name: CountVoucherOwners :one
+SELECT COUNT(*) AS total
+FROM voucher_owner;
+
+-- name: GetUserByUsername :one
+SELECT username, hashed_password, full_name, email, role, active
+FROM users
+WHERE username = $1;
+
 -- name: GetStoresByOwner :many
 SELECT id, name, business_type
 FROM stores
 WHERE owner = $1;
 
--- name: GetBranchesByOwner :many
+-- name: GetBranchesByStore :many
 SELECT b.id, b.name, b.position, b.city_name, b.country, b.address, b.emoji
 FROM branchs b
-JOIN stores s ON b.store_id = s.id
-WHERE s.owner = $1;
+WHERE b.store_id = $1;
 
--- name: GetEventsByOwner :many
+-- name: GetEventsByStore :many
 SELECT e.id, e.name, e.photo, e.voucher_quantity, e.status, e.start_time, e.end_time, g.type AS game_type
 FROM events e
 JOIN games g ON e.game_id = g.id
-WHERE e.owner = $1;
+WHERE e.store_id = $1;
 
 -- name: GetVouchersByEvent :many
 SELECT v.id, v.qr_code, v.type, v.status, v.expires_at
 FROM vouchers v
 WHERE v.event_id = $1;
 
-
--- name: GetVoucherOwnersByEvent :many
-SELECT vo.username, u.full_name, u.email, v.id AS voucher_id, v.type AS voucher_type, v.status AS voucher_status
+-- name: GetVoucherOwnersByVoucher :many
+SELECT vo.username, u.full_name, u.email, vo.created_at
 FROM voucher_owner vo
-JOIN vouchers v ON vo.voucher_id = v.id
 JOIN users u ON vo.username = u.username
-WHERE v.event_id = $1;
+WHERE vo.voucher_id = $1;
 
 -- name: GetCmsOverview :one
 SELECT 
@@ -88,7 +165,7 @@ JOIN vouchers v ON vo.voucher_id = v.id
 JOIN events e ON v.event_id = e.id
 JOIN stores s ON e.store_id = s.id
 JOIN users u ON vo.username = u.username
-WHERE s.owner = $1 -- Chỉ lấy các store của owner
+WHERE s.owner = $1
   AND vo.created_at >= NOW() - INTERVAL '1 MONTH'
 GROUP BY vo.username, u.full_name, u.email, u.photo
 ORDER BY MAX(vo.created_at) DESC
@@ -96,18 +173,17 @@ LIMIT 5;
 
 -- name: GetVoucherStatsByMonth :many
 SELECT 
-    TO_CHAR(DATE_TRUNC('month', vo.created_at), 'YYYY-MM') AS month, -- Trả về chuỗi định dạng YYYY-MM
+    TO_CHAR(DATE_TRUNC('month', vo.created_at), 'YYYY-MM') AS month,
     g.type AS game_type,
     COUNT(*) AS total_vouchers
 FROM voucher_owner vo
 JOIN vouchers v ON vo.voucher_id = v.id
 JOIN events e ON v.event_id = e.id
 JOIN games g ON e.game_id = g.id
-WHERE e.owner = $1 -- Chỉ lấy các sự kiện của owner
-  AND vo.created_at >= NOW() - INTERVAL '6 MONTHS' -- Chỉ lấy dữ liệu trong 6 tháng gần đây
+WHERE e.owner = $1
+  AND vo.created_at >= NOW() - INTERVAL '6 MONTHS'
 GROUP BY month, game_type
 ORDER BY month;
-
 
 -- name: GetUserStatsByStore :many
 SELECT 
@@ -122,4 +198,3 @@ WHERE e.owner = $1
   AND vo.created_at >= NOW() - INTERVAL '6 MONTHS'
 GROUP BY s.id, s.name
 ORDER BY total_users DESC;
-

@@ -46,14 +46,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-  counterpart:
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile-counterpart
-    ports:
-      - "50052:50052"
-    environment:
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+  # counterpart:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile-counterpart
+  #   ports:
+  #     - "50052:50052"
+  #   environment:
+  #     - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
   quiz:
     build: 
       context: .
@@ -76,22 +76,22 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-  gateway:
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile-gateway
-    ports:
-      - "8080:8080"
-      - "9090:9090"
-    environment:
-      - AUTH_SERVER_ADDRESS=auth:50051
-      - COUNTERPART_SERVER_ADDRESS=counterpart:50052
-      - EVENT_SERVER_ADDRESS=event:50053
-    depends_on:
-      - auth
-      - counterpart
-      - quiz
-      - event
+  # gateway:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile-gateway
+  #   ports:
+  #     - "8080:8080"
+  #     - "9090:9090"
+  #   environment:
+  #     - AUTH_SERVER_ADDRESS=auth:50051
+  #     - COUNTERPART_SERVER_ADDRESS=counterpart:50052
+  #     - EVENT_SERVER_ADDRESS=event:50053
+  #   depends_on:
+  #     - auth
+  #     - counterpart
+  #     - quiz
+  #     - event
 
   pgadmin:
     image: dpage/pgadmin4

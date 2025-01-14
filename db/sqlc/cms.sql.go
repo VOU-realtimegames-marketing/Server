@@ -12,14 +12,314 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getBranchesByOwner = `-- name: GetBranchesByOwner :many
-SELECT b.id, b.name, b.position, b.city_name, b.country, b.address, b.emoji
-FROM branchs b
-JOIN stores s ON b.store_id = s.id
-WHERE s.owner = $1
+const checkEventExists = `-- name: CheckEventExists :one
+SELECT id 
+FROM events
+WHERE owner = $1 
+  AND game_id = $2 
+  AND store_id = $3 
+  AND name = $4
 `
 
-type GetBranchesByOwnerRow struct {
+type CheckEventExistsParams struct {
+	Owner   string `json:"owner"`
+	GameID  int64  `json:"game_id"`
+	StoreID int64  `json:"store_id"`
+	Name    string `json:"name"`
+}
+
+func (q *Queries) CheckEventExists(ctx context.Context, arg CheckEventExistsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, checkEventExists,
+		arg.Owner,
+		arg.GameID,
+		arg.StoreID,
+		arg.Name,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const checkGameExists = `-- name: CheckGameExists :one
+SELECT id 
+FROM games
+WHERE type = $1
+`
+
+func (q *Queries) CheckGameExists(ctx context.Context, type_ string) (int64, error) {
+	row := q.db.QueryRow(ctx, checkGameExists, type_)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const checkStoreExists = `-- name: CheckStoreExists :one
+SELECT COALESCE((SELECT id 
+                 FROM stores 
+                 WHERE name = $1 AND owner = $2 
+                 LIMIT 1), 0) AS id
+`
+
+type CheckStoreExistsParams struct {
+	Name  string `json:"name"`
+	Owner string `json:"owner"`
+}
+
+func (q *Queries) CheckStoreExists(ctx context.Context, arg CheckStoreExistsParams) (interface{}, error) {
+	row := q.db.QueryRow(ctx, checkStoreExists, arg.Name, arg.Owner)
+	var id interface{}
+	err := row.Scan(&id)
+	return id, err
+}
+
+const checkVoucherExists = `-- name: CheckVoucherExists :one
+SELECT id 
+FROM vouchers
+WHERE event_id = $1 AND qr_code = $2 AND type = $3
+`
+
+type CheckVoucherExistsParams struct {
+	EventID int64       `json:"event_id"`
+	QrCode  pgtype.Text `json:"qr_code"`
+	Type    string      `json:"type"`
+}
+
+func (q *Queries) CheckVoucherExists(ctx context.Context, arg CheckVoucherExistsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, checkVoucherExists, arg.EventID, arg.QrCode, arg.Type)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const checkVoucherOwnerExists = `-- name: CheckVoucherOwnerExists :one
+SELECT id 
+FROM voucher_owner
+WHERE username = $1 AND voucher_id = $2
+`
+
+type CheckVoucherOwnerExistsParams struct {
+	Username  string `json:"username"`
+	VoucherID int64  `json:"voucher_id"`
+}
+
+func (q *Queries) CheckVoucherOwnerExists(ctx context.Context, arg CheckVoucherOwnerExistsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, checkVoucherOwnerExists, arg.Username, arg.VoucherID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const countVoucherOwners = `-- name: CountVoucherOwners :one
+SELECT COUNT(*) AS total
+FROM voucher_owner
+`
+
+func (q *Queries) CountVoucherOwners(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countVoucherOwners)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const createFakeBranch = `-- name: CreateFakeBranch :one
+INSERT INTO branchs (store_id, name, position, city_name, country, address, emoji)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (store_id, name) DO NOTHING
+RETURNING id
+`
+
+type CreateFakeBranchParams struct {
+	StoreID  int64  `json:"store_id"`
+	Name     string `json:"name"`
+	Position string `json:"position"`
+	CityName string `json:"city_name"`
+	Country  string `json:"country"`
+	Address  string `json:"address"`
+	Emoji    string `json:"emoji"`
+}
+
+func (q *Queries) CreateFakeBranch(ctx context.Context, arg CreateFakeBranchParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createFakeBranch,
+		arg.StoreID,
+		arg.Name,
+		arg.Position,
+		arg.CityName,
+		arg.Country,
+		arg.Address,
+		arg.Emoji,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createFakeEvent = `-- name: CreateFakeEvent :one
+INSERT INTO events (game_id, store_id, owner, name, photo, voucher_quantity, status, start_time, end_time)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id
+`
+
+type CreateFakeEventParams struct {
+	GameID          int64        `json:"game_id"`
+	StoreID         int64        `json:"store_id"`
+	Owner           string       `json:"owner"`
+	Name            string       `json:"name"`
+	Photo           string       `json:"photo"`
+	VoucherQuantity int32        `json:"voucher_quantity"`
+	Status          EventsStatus `json:"status"`
+	StartTime       time.Time    `json:"start_time"`
+	EndTime         time.Time    `json:"end_time"`
+}
+
+func (q *Queries) CreateFakeEvent(ctx context.Context, arg CreateFakeEventParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createFakeEvent,
+		arg.GameID,
+		arg.StoreID,
+		arg.Owner,
+		arg.Name,
+		arg.Photo,
+		arg.VoucherQuantity,
+		arg.Status,
+		arg.StartTime,
+		arg.EndTime,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createFakeStore = `-- name: CreateFakeStore :one
+INSERT INTO stores (name, owner, business_type)
+VALUES ($1, $2, $3)
+RETURNING id
+`
+
+type CreateFakeStoreParams struct {
+	Name         string `json:"name"`
+	Owner        string `json:"owner"`
+	BusinessType string `json:"business_type"`
+}
+
+func (q *Queries) CreateFakeStore(ctx context.Context, arg CreateFakeStoreParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createFakeStore, arg.Name, arg.Owner, arg.BusinessType)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createFakeUser = `-- name: CreateFakeUser :one
+INSERT INTO users (username, hashed_password, full_name, email, role, created_at)
+VALUES ($1, $2, $3, $4, $5, NOW())
+ON CONFLICT (username) DO UPDATE SET 
+    hashed_password = EXCLUDED.hashed_password,
+    full_name = EXCLUDED.full_name,
+    email = EXCLUDED.email,
+    role = EXCLUDED.role,
+    created_at = EXCLUDED.created_at
+RETURNING username
+`
+
+type CreateFakeUserParams struct {
+	Username       string `json:"username"`
+	HashedPassword string `json:"hashed_password"`
+	FullName       string `json:"full_name"`
+	Email          string `json:"email"`
+	Role           string `json:"role"`
+}
+
+func (q *Queries) CreateFakeUser(ctx context.Context, arg CreateFakeUserParams) (string, error) {
+	row := q.db.QueryRow(ctx, createFakeUser,
+		arg.Username,
+		arg.HashedPassword,
+		arg.FullName,
+		arg.Email,
+		arg.Role,
+	)
+	var username string
+	err := row.Scan(&username)
+	return username, err
+}
+
+const createGame = `-- name: CreateGame :one
+INSERT INTO games (name, photo, type, play_guide, gift_allowed)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+`
+
+type CreateGameParams struct {
+	Name        string      `json:"name"`
+	Photo       string      `json:"photo"`
+	Type        string      `json:"type"`
+	PlayGuide   pgtype.Text `json:"play_guide"`
+	GiftAllowed bool        `json:"gift_allowed"`
+}
+
+func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createGame,
+		arg.Name,
+		arg.Photo,
+		arg.Type,
+		arg.PlayGuide,
+		arg.GiftAllowed,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createVoucher = `-- name: CreateVoucher :one
+INSERT INTO vouchers (event_id, qr_code, type, status, expires_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+`
+
+type CreateVoucherParams struct {
+	EventID   int64       `json:"event_id"`
+	QrCode    pgtype.Text `json:"qr_code"`
+	Type      string      `json:"type"`
+	Status    string      `json:"status"`
+	ExpiresAt time.Time   `json:"expires_at"`
+}
+
+func (q *Queries) CreateVoucher(ctx context.Context, arg CreateVoucherParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createVoucher,
+		arg.EventID,
+		arg.QrCode,
+		arg.Type,
+		arg.Status,
+		arg.ExpiresAt,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createVoucherOwner = `-- name: CreateVoucherOwner :one
+INSERT INTO voucher_owner (username, voucher_id, created_at)
+VALUES ($1, $2, $3)
+RETURNING id
+`
+
+type CreateVoucherOwnerParams struct {
+	Username  string    `json:"username"`
+	VoucherID int64     `json:"voucher_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func (q *Queries) CreateVoucherOwner(ctx context.Context, arg CreateVoucherOwnerParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createVoucherOwner, arg.Username, arg.VoucherID, arg.CreatedAt)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getBranchesByStore = `-- name: GetBranchesByStore :many
+SELECT b.id, b.name, b.position, b.city_name, b.country, b.address, b.emoji
+FROM branchs b
+WHERE b.store_id = $1
+`
+
+type GetBranchesByStoreRow struct {
 	ID       int64  `json:"id"`
 	Name     string `json:"name"`
 	Position string `json:"position"`
@@ -29,15 +329,15 @@ type GetBranchesByOwnerRow struct {
 	Emoji    string `json:"emoji"`
 }
 
-func (q *Queries) GetBranchesByOwner(ctx context.Context, owner string) ([]GetBranchesByOwnerRow, error) {
-	rows, err := q.db.Query(ctx, getBranchesByOwner, owner)
+func (q *Queries) GetBranchesByStore(ctx context.Context, storeID int64) ([]GetBranchesByStoreRow, error) {
+	rows, err := q.db.Query(ctx, getBranchesByStore, storeID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetBranchesByOwnerRow{}
+	items := []GetBranchesByStoreRow{}
 	for rows.Next() {
-		var i GetBranchesByOwnerRow
+		var i GetBranchesByStoreRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -113,14 +413,14 @@ func (q *Queries) GetCmsOverview(ctx context.Context, owner string) (GetCmsOverv
 	return i, err
 }
 
-const getEventsByOwner = `-- name: GetEventsByOwner :many
+const getEventsByStore = `-- name: GetEventsByStore :many
 SELECT e.id, e.name, e.photo, e.voucher_quantity, e.status, e.start_time, e.end_time, g.type AS game_type
 FROM events e
 JOIN games g ON e.game_id = g.id
-WHERE e.owner = $1
+WHERE e.store_id = $1
 `
 
-type GetEventsByOwnerRow struct {
+type GetEventsByStoreRow struct {
 	ID              int64        `json:"id"`
 	Name            string       `json:"name"`
 	Photo           string       `json:"photo"`
@@ -131,15 +431,15 @@ type GetEventsByOwnerRow struct {
 	GameType        string       `json:"game_type"`
 }
 
-func (q *Queries) GetEventsByOwner(ctx context.Context, owner string) ([]GetEventsByOwnerRow, error) {
-	rows, err := q.db.Query(ctx, getEventsByOwner, owner)
+func (q *Queries) GetEventsByStore(ctx context.Context, storeID int64) ([]GetEventsByStoreRow, error) {
+	rows, err := q.db.Query(ctx, getEventsByStore, storeID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetEventsByOwnerRow{}
+	items := []GetEventsByStoreRow{}
 	for rows.Next() {
-		var i GetEventsByOwnerRow
+		var i GetEventsByStoreRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -172,7 +472,7 @@ JOIN vouchers v ON vo.voucher_id = v.id
 JOIN events e ON v.event_id = e.id
 JOIN stores s ON e.store_id = s.id
 JOIN users u ON vo.username = u.username
-WHERE s.owner = $1 -- Chỉ lấy các store của owner
+WHERE s.owner = $1
   AND vo.created_at >= NOW() - INTERVAL '1 MONTH'
 GROUP BY vo.username, u.full_name, u.email, u.photo
 ORDER BY MAX(vo.created_at) DESC
@@ -243,6 +543,35 @@ func (q *Queries) GetStoresByOwner(ctx context.Context, owner string) ([]GetStor
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT username, hashed_password, full_name, email, role, active
+FROM users
+WHERE username = $1
+`
+
+type GetUserByUsernameRow struct {
+	Username       string `json:"username"`
+	HashedPassword string `json:"hashed_password"`
+	FullName       string `json:"full_name"`
+	Email          string `json:"email"`
+	Role           string `json:"role"`
+	Active         bool   `json:"active"`
+}
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, username)
+	var i GetUserByUsernameRow
+	err := row.Scan(
+		&i.Username,
+		&i.HashedPassword,
+		&i.FullName,
+		&i.Email,
+		&i.Role,
+		&i.Active,
+	)
+	return i, err
 }
 
 const getUserPlayByDate = `-- name: GetUserPlayByDate :many
@@ -327,39 +656,34 @@ func (q *Queries) GetUserStatsByStore(ctx context.Context, owner string) ([]GetU
 	return items, nil
 }
 
-const getVoucherOwnersByEvent = `-- name: GetVoucherOwnersByEvent :many
-SELECT vo.username, u.full_name, u.email, v.id AS voucher_id, v.type AS voucher_type, v.status AS voucher_status
+const getVoucherOwnersByVoucher = `-- name: GetVoucherOwnersByVoucher :many
+SELECT vo.username, u.full_name, u.email, vo.created_at
 FROM voucher_owner vo
-JOIN vouchers v ON vo.voucher_id = v.id
 JOIN users u ON vo.username = u.username
-WHERE v.event_id = $1
+WHERE vo.voucher_id = $1
 `
 
-type GetVoucherOwnersByEventRow struct {
-	Username      string `json:"username"`
-	FullName      string `json:"full_name"`
-	Email         string `json:"email"`
-	VoucherID     int64  `json:"voucher_id"`
-	VoucherType   string `json:"voucher_type"`
-	VoucherStatus string `json:"voucher_status"`
+type GetVoucherOwnersByVoucherRow struct {
+	Username  string    `json:"username"`
+	FullName  string    `json:"full_name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-func (q *Queries) GetVoucherOwnersByEvent(ctx context.Context, eventID int64) ([]GetVoucherOwnersByEventRow, error) {
-	rows, err := q.db.Query(ctx, getVoucherOwnersByEvent, eventID)
+func (q *Queries) GetVoucherOwnersByVoucher(ctx context.Context, voucherID int64) ([]GetVoucherOwnersByVoucherRow, error) {
+	rows, err := q.db.Query(ctx, getVoucherOwnersByVoucher, voucherID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetVoucherOwnersByEventRow{}
+	items := []GetVoucherOwnersByVoucherRow{}
 	for rows.Next() {
-		var i GetVoucherOwnersByEventRow
+		var i GetVoucherOwnersByVoucherRow
 		if err := rows.Scan(
 			&i.Username,
 			&i.FullName,
 			&i.Email,
-			&i.VoucherID,
-			&i.VoucherType,
-			&i.VoucherStatus,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -373,15 +697,15 @@ func (q *Queries) GetVoucherOwnersByEvent(ctx context.Context, eventID int64) ([
 
 const getVoucherStatsByMonth = `-- name: GetVoucherStatsByMonth :many
 SELECT 
-    TO_CHAR(DATE_TRUNC('month', vo.created_at), 'YYYY-MM') AS month, -- Trả về chuỗi định dạng YYYY-MM
+    TO_CHAR(DATE_TRUNC('month', vo.created_at), 'YYYY-MM') AS month,
     g.type AS game_type,
     COUNT(*) AS total_vouchers
 FROM voucher_owner vo
 JOIN vouchers v ON vo.voucher_id = v.id
 JOIN events e ON v.event_id = e.id
 JOIN games g ON e.game_id = g.id
-WHERE e.owner = $1 -- Chỉ lấy các sự kiện của owner
-  AND vo.created_at >= NOW() - INTERVAL '6 MONTHS' -- Chỉ lấy dữ liệu trong 6 tháng gần đây
+WHERE e.owner = $1
+  AND vo.created_at >= NOW() - INTERVAL '6 MONTHS'
 GROUP BY month, game_type
 ORDER BY month
 `

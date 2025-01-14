@@ -428,6 +428,78 @@ func (x *GetCmsOverviewResponse) GetChartUserStore() []*UserStoreStats {
 	return nil
 }
 
+type FakeCmsOverviewRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FakeCmsOverviewRequest) Reset() {
+	*x = FakeCmsOverviewRequest{}
+	mi := &file_counterpart_rpc_cms_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FakeCmsOverviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FakeCmsOverviewRequest) ProtoMessage() {}
+
+func (x *FakeCmsOverviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_counterpart_rpc_cms_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FakeCmsOverviewRequest.ProtoReflect.Descriptor instead.
+func (*FakeCmsOverviewRequest) Descriptor() ([]byte, []int) {
+	return file_counterpart_rpc_cms_proto_rawDescGZIP(), []int{6}
+}
+
+type FakeCmsOverviewResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FakeCmsOverviewResponse) Reset() {
+	*x = FakeCmsOverviewResponse{}
+	mi := &file_counterpart_rpc_cms_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FakeCmsOverviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FakeCmsOverviewResponse) ProtoMessage() {}
+
+func (x *FakeCmsOverviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_counterpart_rpc_cms_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FakeCmsOverviewResponse.ProtoReflect.Descriptor instead.
+func (*FakeCmsOverviewResponse) Descriptor() ([]byte, []int) {
+	return file_counterpart_rpc_cms_proto_rawDescGZIP(), []int{7}
+}
+
 var File_counterpart_rpc_cms_proto protoreflect.FileDescriptor
 
 var file_counterpart_rpc_cms_proto_rawDesc = []byte{
@@ -495,9 +567,12 @@ var file_counterpart_rpc_cms_proto_rawDesc = []byte{
 	0x6f, 0x72, 0x65, 0x18, 0x09, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x76, 0x6f, 0x75, 0x2e,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x53, 0x74, 0x6f, 0x72, 0x65, 0x53,
 	0x74, 0x61, 0x74, 0x73, 0x52, 0x0e, 0x63, 0x68, 0x61, 0x72, 0x74, 0x55, 0x73, 0x65, 0x72, 0x53,
-	0x74, 0x6f, 0x72, 0x65, 0x42, 0x16, 0x5a, 0x14, 0x56, 0x4f, 0x55, 0x2d, 0x53, 0x65, 0x72, 0x76,
-	0x65, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x6f, 0x72, 0x65, 0x22, 0x18, 0x0a, 0x16, 0x46, 0x61, 0x6b, 0x65, 0x43, 0x6d, 0x73, 0x4f,
+	0x76, 0x65, 0x72, 0x76, 0x69, 0x65, 0x77, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x19,
+	0x0a, 0x17, 0x46, 0x61, 0x6b, 0x65, 0x43, 0x6d, 0x73, 0x4f, 0x76, 0x65, 0x72, 0x76, 0x69, 0x65,
+	0x77, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x16, 0x5a, 0x14, 0x56, 0x4f, 0x55,
+	0x2d, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x65,
+	0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -512,14 +587,16 @@ func file_counterpart_rpc_cms_proto_rawDescGZIP() []byte {
 	return file_counterpart_rpc_cms_proto_rawDescData
 }
 
-var file_counterpart_rpc_cms_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_counterpart_rpc_cms_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_counterpart_rpc_cms_proto_goTypes = []any{
-	(*UserPlayData)(nil),           // 0: vou.proto.UserPlayData
-	(*RecentUser)(nil),             // 1: vou.proto.RecentUser
-	(*VoucherStats)(nil),           // 2: vou.proto.VoucherStats
-	(*UserStoreStats)(nil),         // 3: vou.proto.UserStoreStats
-	(*GetCmsOverviewRequest)(nil),  // 4: vou.proto.GetCmsOverviewRequest
-	(*GetCmsOverviewResponse)(nil), // 5: vou.proto.GetCmsOverviewResponse
+	(*UserPlayData)(nil),            // 0: vou.proto.UserPlayData
+	(*RecentUser)(nil),              // 1: vou.proto.RecentUser
+	(*VoucherStats)(nil),            // 2: vou.proto.VoucherStats
+	(*UserStoreStats)(nil),          // 3: vou.proto.UserStoreStats
+	(*GetCmsOverviewRequest)(nil),   // 4: vou.proto.GetCmsOverviewRequest
+	(*GetCmsOverviewResponse)(nil),  // 5: vou.proto.GetCmsOverviewResponse
+	(*FakeCmsOverviewRequest)(nil),  // 6: vou.proto.FakeCmsOverviewRequest
+	(*FakeCmsOverviewResponse)(nil), // 7: vou.proto.FakeCmsOverviewResponse
 }
 var file_counterpart_rpc_cms_proto_depIdxs = []int32{
 	0, // 0: vou.proto.GetCmsOverviewResponse.chart_user_play:type_name -> vou.proto.UserPlayData
@@ -544,7 +621,7 @@ func file_counterpart_rpc_cms_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_counterpart_rpc_cms_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
