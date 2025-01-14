@@ -111,40 +111,33 @@ func mapRecentUsers(data []db.GetRecentVoucherOwnersRow) []*gen.RecentUser {
 }
 
 func mapVoucherStats(data []db.GetVoucherStatsByMonthRow) []*gen.VoucherStats {
-	result := []*gen.VoucherStats{}
-	for _, v := range data {
-		// Tìm tháng hiện tại trong result
-		found := false
-		for _, existing := range result {
-			if existing.Month == v.Month {
-				// Gộp dữ liệu theo game_type
-				if v.GameType == "shakeGame" {
-					existing.ShakeGame += int32(v.TotalVouchers)
-				} else if v.GameType == "quizGame" {
-					existing.QuizGame += int32(v.TotalVouchers)
-				}
-				found = true
-				break
-			}
-		}
+	result := make(map[string]*gen.VoucherStats) // Dùng map để dễ dàng gộp theo tháng
 
-		// Nếu tháng chưa tồn tại, thêm mới
-		if !found {
-			result = append(result, &gen.VoucherStats{
+	for _, v := range data {
+		// Kiểm tra nếu tháng đã tồn tại trong kết quả
+		if _, exists := result[v.Month]; !exists {
+			result[v.Month] = &gen.VoucherStats{
 				Month:     v.Month,
 				QuizGame:  0,
 				ShakeGame: 0,
-			})
-
-			// Thêm dữ liệu mới
-			if v.GameType == "shakeGame" {
-				result[len(result)-1].ShakeGame = int32(v.TotalVouchers)
-			} else if v.GameType == "quizGame" {
-				result[len(result)-1].QuizGame = int32(v.TotalVouchers)
 			}
 		}
+
+		// Cập nhật dữ liệu theo loại game
+		if v.GameType == "phone-shake" {
+			result[v.Month].ShakeGame += int32(v.TotalVouchers)
+		} else if v.GameType == "quiz" {
+			result[v.Month].QuizGame += int32(v.TotalVouchers)
+		}
 	}
-	return result
+
+	// Chuyển kết quả từ map sang slice
+	finalResult := make([]*gen.VoucherStats, 0, len(result))
+	for _, stats := range result {
+		finalResult = append(finalResult, stats)
+	}
+
+	return finalResult
 }
 
 func mapUserStoreStats(data []db.GetUserStatsByStoreRow) []*gen.UserStoreStats {
