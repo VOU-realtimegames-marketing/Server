@@ -17,6 +17,7 @@ func testAnswerQuestion(gameClient *client.GameClient) {
 
 	answer1 := []string{"Paris", "Mount Everest", "H2O", "Leonardo da Vinci", "Jupiter"}
 	answer2 := []string{"Paris", "Mount Everest", "O2", "Leonardo da Vinci", "Mars"}
+	// answer2 := []string{"Paris", "Mount Everest", "H2O", "Leonardo da Vinci", "Jupiter"}
 	for {
 		if i >= n {
 			break
@@ -38,6 +39,31 @@ func testAnswerQuestion(gameClient *client.GameClient) {
 	}
 }
 
+func testGetQuestion(gameClient *client.GameClient) {
+	n := 5
+	i := 0
+
+	for {
+		if i >= n {
+			break
+		}
+
+		fmt.Print("get next question (y/n)? ")
+		var answer string
+		fmt.Scan(&answer)
+
+		if strings.ToLower(answer) != "y" {
+			break
+		}
+
+		err := gameClient.GetQuestion(i + 1)
+		if err != nil {
+			log.Fatal(err)
+		}
+		i++
+	}
+}
+
 func main() {
 
 	cc, err := grpc.NewClient("0.0.0.0:50054", grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -46,5 +72,6 @@ func main() {
 	}
 
 	gameClient := client.NewGameClient(cc)
-	testAnswerQuestion(gameClient)
+	// testAnswerQuestion(gameClient)
+	testGetQuestion(gameClient)
 }

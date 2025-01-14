@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	GameService_AnswerQuestion_FullMethodName = "/vou.proto.GameService/AnswerQuestion"
+	GameService_GetQuestion_FullMethodName    = "/vou.proto.GameService/GetQuestion"
 )
 
 // GameServiceClient is the client API for GameService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GameServiceClient interface {
 	AnswerQuestion(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[AnswerQuestionRequest, AnswerQuestionResponse], error)
+	GetQuestion(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[GetQuestionRequest, GetQuestionResponse], error)
 }
 
 type gameServiceClient struct {
@@ -50,11 +52,25 @@ func (c *gameServiceClient) AnswerQuestion(ctx context.Context, opts ...grpc.Cal
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GameService_AnswerQuestionClient = grpc.BidiStreamingClient[AnswerQuestionRequest, AnswerQuestionResponse]
 
+func (c *gameServiceClient) GetQuestion(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[GetQuestionRequest, GetQuestionResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &GameService_ServiceDesc.Streams[1], GameService_GetQuestion_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[GetQuestionRequest, GetQuestionResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GameService_GetQuestionClient = grpc.BidiStreamingClient[GetQuestionRequest, GetQuestionResponse]
+
 // GameServiceServer is the server API for GameService service.
 // All implementations must embed UnimplementedGameServiceServer
 // for forward compatibility.
 type GameServiceServer interface {
 	AnswerQuestion(grpc.BidiStreamingServer[AnswerQuestionRequest, AnswerQuestionResponse]) error
+	GetQuestion(grpc.BidiStreamingServer[GetQuestionRequest, GetQuestionResponse]) error
 	mustEmbedUnimplementedGameServiceServer()
 }
 
@@ -67,6 +83,9 @@ type UnimplementedGameServiceServer struct{}
 
 func (UnimplementedGameServiceServer) AnswerQuestion(grpc.BidiStreamingServer[AnswerQuestionRequest, AnswerQuestionResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method AnswerQuestion not implemented")
+}
+func (UnimplementedGameServiceServer) GetQuestion(grpc.BidiStreamingServer[GetQuestionRequest, GetQuestionResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method GetQuestion not implemented")
 }
 func (UnimplementedGameServiceServer) mustEmbedUnimplementedGameServiceServer() {}
 func (UnimplementedGameServiceServer) testEmbeddedByValue()                     {}
@@ -96,6 +115,13 @@ func _GameService_AnswerQuestion_Handler(srv interface{}, stream grpc.ServerStre
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GameService_AnswerQuestionServer = grpc.BidiStreamingServer[AnswerQuestionRequest, AnswerQuestionResponse]
 
+func _GameService_GetQuestion_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(GameServiceServer).GetQuestion(&grpc.GenericServerStream[GetQuestionRequest, GetQuestionResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GameService_GetQuestionServer = grpc.BidiStreamingServer[GetQuestionRequest, GetQuestionResponse]
+
 // GameService_ServiceDesc is the grpc.ServiceDesc for GameService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -107,6 +133,12 @@ var GameService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "AnswerQuestion",
 			Handler:       _GameService_AnswerQuestion_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "GetQuestion",
+			Handler:       _GameService_GetQuestion_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
