@@ -108,6 +108,11 @@ service Gateway {
       get: "/api/v1/cms/fake_data"
     };
   }
+  rpc GetAdminCmsOverview(GetAdminCmsOverviewRequest) returns (GetAdminCmsOverviewResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/cms/admin-overview"
+    };
+  }
   // END COUNTERPART
 
   // BEGIN EVENT-QUIZ

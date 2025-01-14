@@ -313,6 +313,45 @@ func (q *Queries) CreateVoucherOwner(ctx context.Context, arg CreateVoucherOwner
 	return id, err
 }
 
+const getAdminStats = `-- name: GetAdminStats :one
+SELECT 
+    (SELECT COUNT(*) FROM users WHERE role = 'partner') AS total_partner,
+    (SELECT COUNT(*) FROM users WHERE role = 'partner' AND created_at >= NOW() - INTERVAL '1 MONTH') AS total_partner_last_month,
+    (SELECT COUNT(*) FROM users WHERE role = 'user') AS total_user,
+    (SELECT COUNT(*) FROM users WHERE role = 'user' AND created_at >= NOW() - INTERVAL '1 MONTH') AS total_user_last_month,
+    (SELECT COUNT(*) FROM branchs) AS total_branch,
+    (SELECT COUNT(*) FROM branchs WHERE created_at >= NOW() - INTERVAL '1 MONTH') AS total_branch_last_month,
+    (SELECT SUM(v.voucher_quantity * 10) FROM events e JOIN vouchers v ON e.id = v.event_id) AS total_earning,
+    (SELECT SUM(v.voucher_quantity * 10) FROM events e JOIN vouchers v ON e.id = v.event_id WHERE e.start_time >= NOW() - INTERVAL '1 MONTH') AS total_earning_last_month
+`
+
+type GetAdminStatsRow struct {
+	TotalPartner          int64 `json:"total_partner"`
+	TotalPartnerLastMonth int64 `json:"total_partner_last_month"`
+	TotalUser             int64 `json:"total_user"`
+	TotalUserLastMonth    int64 `json:"total_user_last_month"`
+	TotalBranch           int64 `json:"total_branch"`
+	TotalBranchLastMonth  int64 `json:"total_branch_last_month"`
+	TotalEarning          int64 `json:"total_earning"`
+	TotalEarningLastMonth int64 `json:"total_earning_last_month"`
+}
+
+func (q *Queries) GetAdminStats(ctx context.Context) (GetAdminStatsRow, error) {
+	row := q.db.QueryRow(ctx, getAdminStats)
+	var i GetAdminStatsRow
+	err := row.Scan(
+		&i.TotalPartner,
+		&i.TotalPartnerLastMonth,
+		&i.TotalUser,
+		&i.TotalUserLastMonth,
+		&i.TotalBranch,
+		&i.TotalBranchLastMonth,
+		&i.TotalEarning,
+		&i.TotalEarningLastMonth,
+	)
+	return i, err
+}
+
 const getBranchesByStore = `-- name: GetBranchesByStore :many
 SELECT b.id, b.name, b.position, b.city_name, b.country, b.address, b.emoji
 FROM branchs b
@@ -413,6 +452,44 @@ func (q *Queries) GetCmsOverview(ctx context.Context, owner string) (GetCmsOverv
 	return i, err
 }
 
+const getEventCreatedStats = `-- name: GetEventCreatedStats :many
+SELECT 
+    DATE(start_time) AS date,
+    COUNT(CASE WHEN g.type = 'quiz' THEN 1 END) AS quiz_game,
+    COUNT(CASE WHEN g.type = 'phone-shake' THEN 1 END) AS shake_game
+FROM events e
+JOIN games g ON e.game_id = g.id
+WHERE start_time >= NOW() - INTERVAL '2 MONTHS'
+GROUP BY DATE(start_time)
+ORDER BY DATE(start_time)
+`
+
+type GetEventCreatedStatsRow struct {
+	Date      pgtype.Date `json:"date"`
+	QuizGame  int64       `json:"quiz_game"`
+	ShakeGame int64       `json:"shake_game"`
+}
+
+func (q *Queries) GetEventCreatedStats(ctx context.Context) ([]GetEventCreatedStatsRow, error) {
+	rows, err := q.db.Query(ctx, getEventCreatedStats)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetEventCreatedStatsRow{}
+	for rows.Next() {
+		var i GetEventCreatedStatsRow
+		if err := rows.Scan(&i.Date, &i.QuizGame, &i.ShakeGame); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEventsByStore = `-- name: GetEventsByStore :many
 SELECT e.id, e.name, e.photo, e.voucher_quantity, e.status, e.start_time, e.end_time, g.type AS game_type
 FROM events e
@@ -449,6 +526,54 @@ func (q *Queries) GetEventsByStore(ctx context.Context, storeID int64) ([]GetEve
 			&i.StartTime,
 			&i.EndTime,
 			&i.GameType,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRecentUsers = `-- name: GetRecentUsers :many
+SELECT 
+    u.username,
+    u.full_name,
+    u.email,
+    u.photo,
+    COUNT(vo.voucher_id) AS vouchers
+FROM voucher_owner vo
+JOIN users u ON vo.username = u.username
+GROUP BY u.username, u.full_name, u.email, u.photo
+ORDER BY MAX(vo.created_at) DESC
+LIMIT 5
+`
+
+type GetRecentUsersRow struct {
+	Username string `json:"username"`
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+	Photo    string `json:"photo"`
+	Vouchers int64  `json:"vouchers"`
+}
+
+func (q *Queries) GetRecentUsers(ctx context.Context) ([]GetRecentUsersRow, error) {
+	rows, err := q.db.Query(ctx, getRecentUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetRecentUsersRow{}
+	for rows.Next() {
+		var i GetRecentUsersRow
+		if err := rows.Scan(
+			&i.Username,
+			&i.FullName,
+			&i.Email,
+			&i.Photo,
+			&i.Vouchers,
 		); err != nil {
 			return nil, err
 		}
@@ -615,6 +740,45 @@ func (q *Queries) GetUserPlayByDate(ctx context.Context, owner string) ([]GetUse
 	return items, nil
 }
 
+const getUserPlayStats = `-- name: GetUserPlayStats :many
+SELECT 
+    TO_CHAR(DATE_TRUNC('month', vo.created_at), 'Month') AS month,
+    COUNT(CASE WHEN g.type = 'quiz' THEN 1 END) AS quiz_game,
+    COUNT(CASE WHEN g.type = 'phone-shake' THEN 1 END) AS shake_game
+FROM voucher_owner vo
+JOIN vouchers v ON vo.voucher_id = v.id
+JOIN events e ON v.event_id = e.id
+JOIN games g ON e.game_id = g.id
+GROUP BY DATE_TRUNC('month', vo.created_at)
+ORDER BY DATE_TRUNC('month', vo.created_at)
+`
+
+type GetUserPlayStatsRow struct {
+	Month     string `json:"month"`
+	QuizGame  int64  `json:"quiz_game"`
+	ShakeGame int64  `json:"shake_game"`
+}
+
+func (q *Queries) GetUserPlayStats(ctx context.Context) ([]GetUserPlayStatsRow, error) {
+	rows, err := q.db.Query(ctx, getUserPlayStats)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUserPlayStatsRow{}
+	for rows.Next() {
+		var i GetUserPlayStatsRow
+		if err := rows.Scan(&i.Month, &i.QuizGame, &i.ShakeGame); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserStatsByStore = `-- name: GetUserStatsByStore :many
 SELECT 
     s.id AS store_id,
@@ -646,6 +810,42 @@ func (q *Queries) GetUserStatsByStore(ctx context.Context, owner string) ([]GetU
 	for rows.Next() {
 		var i GetUserStatsByStoreRow
 		if err := rows.Scan(&i.StoreID, &i.StoreName, &i.TotalUsers); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserStoreStats = `-- name: GetUserStoreStats :many
+SELECT 
+    s.owner AS username,
+    COUNT(DISTINCT vo.username) AS total_user_play
+FROM voucher_owner vo
+JOIN vouchers v ON vo.voucher_id = v.id
+JOIN events e ON v.event_id = e.id
+JOIN stores s ON e.store_id = s.id
+GROUP BY s.owner
+`
+
+type GetUserStoreStatsRow struct {
+	Username      string `json:"username"`
+	TotalUserPlay int64  `json:"total_user_play"`
+}
+
+func (q *Queries) GetUserStoreStats(ctx context.Context) ([]GetUserStoreStatsRow, error) {
+	rows, err := q.db.Query(ctx, getUserStoreStats)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUserStoreStatsRow{}
+	for rows.Next() {
+		var i GetUserStoreStatsRow
+		if err := rows.Scan(&i.Username, &i.TotalUserPlay); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

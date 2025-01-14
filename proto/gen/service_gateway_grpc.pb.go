@@ -33,6 +33,7 @@ const (
 	Gateway_DeleteBranch_FullMethodName        = "/vou.proto.Gateway/DeleteBranch"
 	Gateway_GetCmsOverview_FullMethodName      = "/vou.proto.Gateway/GetCmsOverview"
 	Gateway_FakeCmsOverview_FullMethodName     = "/vou.proto.Gateway/FakeCmsOverview"
+	Gateway_GetAdminCmsOverview_FullMethodName = "/vou.proto.Gateway/GetAdminCmsOverview"
 	Gateway_CreateEvent_FullMethodName         = "/vou.proto.Gateway/CreateEvent"
 	Gateway_GetAllEvents_FullMethodName        = "/vou.proto.Gateway/GetAllEvents"
 	Gateway_GetAllEventsOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllEventsOfOwner"
@@ -61,6 +62,7 @@ type GatewayClient interface {
 	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
 	GetCmsOverview(ctx context.Context, in *GetCmsOverviewRequest, opts ...grpc.CallOption) (*GetCmsOverviewResponse, error)
 	FakeCmsOverview(ctx context.Context, in *FakeCmsOverviewRequest, opts ...grpc.CallOption) (*FakeCmsOverviewResponse, error)
+	GetAdminCmsOverview(ctx context.Context, in *GetAdminCmsOverviewRequest, opts ...grpc.CallOption) (*GetAdminCmsOverviewResponse, error)
 	// BEGIN EVENT-QUIZ
 	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
 	GetAllEvents(ctx context.Context, in *GetAllEventsRequest, opts ...grpc.CallOption) (*GetAllEventsResponse, error)
@@ -218,6 +220,16 @@ func (c *gatewayClient) FakeCmsOverview(ctx context.Context, in *FakeCmsOverview
 	return out, nil
 }
 
+func (c *gatewayClient) GetAdminCmsOverview(ctx context.Context, in *GetAdminCmsOverviewRequest, opts ...grpc.CallOption) (*GetAdminCmsOverviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdminCmsOverviewResponse)
+	err := c.cc.Invoke(ctx, Gateway_GetAdminCmsOverview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *gatewayClient) CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateEventResponse)
@@ -298,6 +310,7 @@ type GatewayServer interface {
 	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
 	GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error)
 	FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error)
+	GetAdminCmsOverview(context.Context, *GetAdminCmsOverviewRequest) (*GetAdminCmsOverviewResponse, error)
 	// BEGIN EVENT-QUIZ
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	GetAllEvents(context.Context, *GetAllEventsRequest) (*GetAllEventsResponse, error)
@@ -356,6 +369,9 @@ func (UnimplementedGatewayServer) GetCmsOverview(context.Context, *GetCmsOvervie
 }
 func (UnimplementedGatewayServer) FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FakeCmsOverview not implemented")
+}
+func (UnimplementedGatewayServer) GetAdminCmsOverview(context.Context, *GetAdminCmsOverviewRequest) (*GetAdminCmsOverviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminCmsOverview not implemented")
 }
 func (UnimplementedGatewayServer) CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
@@ -648,6 +664,24 @@ func _Gateway_FakeCmsOverview_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_GetAdminCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminCmsOverviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).GetAdminCmsOverview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_GetAdminCmsOverview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).GetAdminCmsOverview(ctx, req.(*GetAdminCmsOverviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Gateway_CreateEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateEventRequest)
 	if err := dec(in); err != nil {
@@ -818,6 +852,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FakeCmsOverview",
 			Handler:    _Gateway_FakeCmsOverview_Handler,
+		},
+		{
+			MethodName: "GetAdminCmsOverview",
+			Handler:    _Gateway_GetAdminCmsOverview_Handler,
 		},
 		{
 			MethodName: "CreateEvent",

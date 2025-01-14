@@ -152,6 +152,10 @@ func mapUserStoreStats(data []db.GetUserStatsByStoreRow) []*gen.UserStoreStats {
 	return result
 }
 
+func (server *Server) GetAdminCmsOverview(ctx context.Context, req *gen.GetAdminCmsOverviewRequest) (*gen.GetAdminCmsOverviewResponse, error) {
+	return &gen.GetAdminCmsOverviewResponse{}, nil
+}
+
 func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverviewRequest) (*gen.FakeCmsOverviewResponse, error) {
 	log.Println("Starting FakeCmsOverview")
 
@@ -161,19 +165,21 @@ func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverv
 		log.Printf("Failed to hash password: %v", err)
 		return nil, status.Errorf(codes.Internal, "error hashing password")
 	}
-	partnerUsername := "partner_user"
+	partnerUsername := "admin_user"
 	_, err = server.store.CreateFakeUser(ctx, db.CreateFakeUserParams{
 		Username:       partnerUsername,
 		HashedPassword: hashedPassword,
-		FullName:       "Partner User",
-		Email:          "partner_user@example.com",
-		Role:           "partner",
+		FullName:       "Vou Admin",
+		Email:          "admin_user@gmail.com",
+		Role:           "admin",
 	})
 	if err != nil {
 		log.Printf("Failed to create partner user: %v", err)
 		return nil, status.Errorf(codes.Internal, "error creating partner user")
 	}
 	log.Println("Step 1: Partner user created")
+
+	return &gen.FakeCmsOverviewResponse{}, nil
 
 	log.Println("======== Start step 2 ========")
 	storeNames := []string{"Highland Coffee", "Starbucks"}

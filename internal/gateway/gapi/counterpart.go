@@ -133,6 +133,23 @@ func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOvervie
 	return server.counterpartClient.GetCmsOverview(ctx, req)
 }
 
+func (server *Server) GetAdminCmsOverview(ctx context.Context, req *gen.GetAdminCmsOverviewRequest) (*gen.GetAdminCmsOverviewResponse, error) {
+	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
+	if err != nil || res == nil || res.User == nil {
+		log.Printf("GetCmsOverview: Authorization failed or user not found: %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	if res.User.Role != adminRole {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: unauthorized role")
+	}
+
+	req.Owner = res.User.Username
+	log.Print("GetCmsOverview_counterpart Owner: ", req.Owner)
+
+	return server.counterpartClient.GetAdminCmsOverview(ctx, req)
+}
+
 func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverviewRequest) (*gen.FakeCmsOverviewResponse, error) {
 	return server.counterpartClient.FakeCmsOverview(ctx, req)
 }

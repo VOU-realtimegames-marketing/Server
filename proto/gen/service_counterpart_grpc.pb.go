@@ -27,6 +27,7 @@ const (
 	CounterpartService_GetBranchs_FullMethodName          = "/vou.proto.CounterpartService/GetBranchs"
 	CounterpartService_DeleteBranch_FullMethodName        = "/vou.proto.CounterpartService/DeleteBranch"
 	CounterpartService_GetCmsOverview_FullMethodName      = "/vou.proto.CounterpartService/GetCmsOverview"
+	CounterpartService_GetAdminCmsOverview_FullMethodName = "/vou.proto.CounterpartService/GetAdminCmsOverview"
 	CounterpartService_FakeCmsOverview_FullMethodName     = "/vou.proto.CounterpartService/FakeCmsOverview"
 )
 
@@ -42,6 +43,7 @@ type CounterpartServiceClient interface {
 	GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error)
 	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
 	GetCmsOverview(ctx context.Context, in *GetCmsOverviewRequest, opts ...grpc.CallOption) (*GetCmsOverviewResponse, error)
+	GetAdminCmsOverview(ctx context.Context, in *GetAdminCmsOverviewRequest, opts ...grpc.CallOption) (*GetAdminCmsOverviewResponse, error)
 	FakeCmsOverview(ctx context.Context, in *FakeCmsOverviewRequest, opts ...grpc.CallOption) (*FakeCmsOverviewResponse, error)
 }
 
@@ -133,6 +135,16 @@ func (c *counterpartServiceClient) GetCmsOverview(ctx context.Context, in *GetCm
 	return out, nil
 }
 
+func (c *counterpartServiceClient) GetAdminCmsOverview(ctx context.Context, in *GetAdminCmsOverviewRequest, opts ...grpc.CallOption) (*GetAdminCmsOverviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdminCmsOverviewResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_GetAdminCmsOverview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *counterpartServiceClient) FakeCmsOverview(ctx context.Context, in *FakeCmsOverviewRequest, opts ...grpc.CallOption) (*FakeCmsOverviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(FakeCmsOverviewResponse)
@@ -155,6 +167,7 @@ type CounterpartServiceServer interface {
 	GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error)
 	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
 	GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error)
+	GetAdminCmsOverview(context.Context, *GetAdminCmsOverviewRequest) (*GetAdminCmsOverviewResponse, error)
 	FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error)
 	mustEmbedUnimplementedCounterpartServiceServer()
 }
@@ -189,6 +202,9 @@ func (UnimplementedCounterpartServiceServer) DeleteBranch(context.Context, *Dele
 }
 func (UnimplementedCounterpartServiceServer) GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCmsOverview not implemented")
+}
+func (UnimplementedCounterpartServiceServer) GetAdminCmsOverview(context.Context, *GetAdminCmsOverviewRequest) (*GetAdminCmsOverviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminCmsOverview not implemented")
 }
 func (UnimplementedCounterpartServiceServer) FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FakeCmsOverview not implemented")
@@ -358,6 +374,24 @@ func _CounterpartService_GetCmsOverview_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CounterpartService_GetAdminCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminCmsOverviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CounterpartServiceServer).GetAdminCmsOverview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CounterpartService_GetAdminCmsOverview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CounterpartServiceServer).GetAdminCmsOverview(ctx, req.(*GetAdminCmsOverviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CounterpartService_FakeCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FakeCmsOverviewRequest)
 	if err := dec(in); err != nil {
@@ -414,6 +448,10 @@ var CounterpartService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCmsOverview",
 			Handler:    _CounterpartService_GetCmsOverview_Handler,
+		},
+		{
+			MethodName: "GetAdminCmsOverview",
+			Handler:    _CounterpartService_GetAdminCmsOverview_Handler,
 		},
 		{
 			MethodName: "FakeCmsOverview",

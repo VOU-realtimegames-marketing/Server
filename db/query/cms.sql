@@ -198,3 +198,62 @@ WHERE e.owner = $1
   AND vo.created_at >= NOW() - INTERVAL '6 MONTHS'
 GROUP BY s.id, s.name
 ORDER BY total_users DESC;
+
+-- name: GetEventCreatedStats :many
+SELECT 
+    DATE(start_time) AS date,
+    COUNT(CASE WHEN g.type = 'quiz' THEN 1 END) AS quiz_game,
+    COUNT(CASE WHEN g.type = 'phone-shake' THEN 1 END) AS shake_game
+FROM events e
+JOIN games g ON e.game_id = g.id
+WHERE start_time >= NOW() - INTERVAL '2 MONTHS'
+GROUP BY DATE(start_time)
+ORDER BY DATE(start_time);
+
+-- name: GetUserStoreStats :many
+SELECT 
+    s.owner AS username,
+    COUNT(DISTINCT vo.username) AS total_user_play
+FROM voucher_owner vo
+JOIN vouchers v ON vo.voucher_id = v.id
+JOIN events e ON v.event_id = e.id
+JOIN stores s ON e.store_id = s.id
+GROUP BY s.owner;
+
+-- name: GetUserPlayStats :many
+SELECT 
+    TO_CHAR(DATE_TRUNC('month', vo.created_at), 'Month') AS month,
+    COUNT(CASE WHEN g.type = 'quiz' THEN 1 END) AS quiz_game,
+    COUNT(CASE WHEN g.type = 'phone-shake' THEN 1 END) AS shake_game
+FROM voucher_owner vo
+JOIN vouchers v ON vo.voucher_id = v.id
+JOIN events e ON v.event_id = e.id
+JOIN games g ON e.game_id = g.id
+GROUP BY DATE_TRUNC('month', vo.created_at)
+ORDER BY DATE_TRUNC('month', vo.created_at);
+
+-- name: GetRecentUsers :many
+SELECT 
+    u.username,
+    u.full_name,
+    u.email,
+    u.photo,
+    COUNT(vo.voucher_id) AS vouchers
+FROM voucher_owner vo
+JOIN users u ON vo.username = u.username
+GROUP BY u.username, u.full_name, u.email, u.photo
+ORDER BY MAX(vo.created_at) DESC
+LIMIT 5;
+
+-- name: GetAdminStats :one
+SELECT 
+    (SELECT COUNT(*) FROM users WHERE role = 'partner') AS total_partner,
+    (SELECT COUNT(*) FROM users WHERE role = 'partner' AND created_at >= NOW() - INTERVAL '1 MONTH') AS total_partner_last_month,
+    (SELECT COUNT(*) FROM users WHERE role = 'user') AS total_user,
+    (SELECT COUNT(*) FROM users WHERE role = 'user' AND created_at >= NOW() - INTERVAL '1 MONTH') AS total_user_last_month,
+    (SELECT COUNT(*) FROM branchs) AS total_branch,
+    (SELECT COUNT(*) FROM branchs WHERE created_at >= NOW() - INTERVAL '1 MONTH') AS total_branch_last_month,
+    (SELECT SUM(v.voucher_quantity * 10) FROM events e JOIN vouchers v ON e.id = v.event_id) AS total_earning,
+    (SELECT SUM(v.voucher_quantity * 10) FROM events e JOIN vouchers v ON e.id = v.event_id WHERE e.start_time >= NOW() - INTERVAL '1 MONTH') AS total_earning_last_month;
+
+
