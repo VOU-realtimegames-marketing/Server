@@ -118,33 +118,19 @@ func (server *Server) DeleteBranch(ctx context.Context, req *gen.DeleteBranchReq
 
 func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOverviewRequest) (*gen.GetCmsOverviewResponse, error) {
 	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
-
-	log.Print("GetCmsOverview: ", res.User)
-	if err != nil {
+	if err != nil || res == nil || res.User == nil {
+		log.Printf("GetCmsOverview: Authorization failed or user not found: %v", err)
 		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
 	}
 
 	if res.User.Role != counterpartRole {
-		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: unauthorized role")
 	}
 
 	req.Owner = res.User.Username
-
 	log.Print("GetCmsOverview_counterpart Owner: ", req.Owner)
+
 	return server.counterpartClient.GetCmsOverview(ctx, req)
-
-	// TODO: query real data from Database
-
-	// Fake data giống với frontend
-	// response := &gen.GetCmsOverviewResponse{
-	// 	TotalStore:             10,
-	// 	TotalBranch:            20,
-	// 	TotalEvent:             123,
-	// 	TotalUserPlay:          12513,
-	// 	LastMonthTotalUserPlay: 13000,
-	// }
-
-	// return response, nil
 }
 
 func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverviewRequest) (*gen.FakeCmsOverviewResponse, error) {
