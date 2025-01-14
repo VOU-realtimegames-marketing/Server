@@ -20,6 +20,9 @@ const (
 	// Time to answer a question in seconds
 	QUESTION_DISPLAY_TIME int32 = 5
 
+	// Time for the server to handle the answer in seconds
+	SERVER_HANDLE_TIME int32 = 2
+
 	// Time to show the correct answer in seconds
 	ANSWER_DISPLAY_TIME int32 = 1
 
@@ -27,7 +30,7 @@ const (
 	LEADERBOARD_DISPLAY_TIME int32 = 3
 
 	// Total time to answer a question in seconds
-	TOTAL_QUESTION_TIME = QUESTION_DISPLAY_TIME + ANSWER_DISPLAY_TIME
+	TOTAL_QUESTION_TIME = QUESTION_DISPLAY_TIME + SERVER_HANDLE_TIME + ANSWER_DISPLAY_TIME
 
 	TIME_TOLERANCE = 200 * time.Millisecond
 )
@@ -69,7 +72,7 @@ func (server *Server) AnswerQuestion(stream grpc.BidiStreamingServer[gen.AnswerQ
 		time1 := event.StartTime.Add(
 			time.Duration(previousQuestionDuration+QUESTION_DISPLAY_TIME) * time.Second)
 		time2 := time.Now().Add(-1 * TIME_TOLERANCE)
-		if time1.Before(time2) {
+		if time1.Before(time2) && answer != "" {
 			fmt.Println("1.time1", time1)
 			fmt.Println("1.time2", time2)
 
@@ -107,14 +110,14 @@ func (server *Server) AnswerQuestion(stream grpc.BidiStreamingServer[gen.AnswerQ
 
 		res := &gen.AnswerQuestionResponse{
 			CorrectAnswer: quizzes[questionNum-1].Answer,
+			IsWinner:      false,
+			IsCorrect:     false,
 		}
 
-		// INCORRECT ANSWER
-		if answer != quizzes[questionNum-1].Answer {
-			res.IsCorrect = false
-		} else {
-			// CORRECT ANSWER
-			_, err = server.store.UpdateUserAnswer(streamCtx, db.UpdateUserAnswerParams{
+		var userAnswer db.UserAnswer
+		// CORRECT ANSWER
+		if answer == quizzes[questionNum-1].Answer {
+			userAnswer, err = server.store.UpdateUserAnswer(streamCtx, db.UpdateUserAnswerParams{
 				EventID:  eventId,
 				Username: username,
 			})
@@ -133,14 +136,29 @@ func (server *Server) AnswerQuestion(stream grpc.BidiStreamingServer[gen.AnswerQ
 				}
 			}
 
-			if questionNum == quizzesDB.QuizNum {
-				// Last question
-
-				// check if user win the game
-
-			}
 			res.IsCorrect = true
 		}
+
+		if questionNum == quizzesDB.QuizNum && userAnswer.NumCorrect == quizzesDB.QuizNum {
+			// Last question, check if user win the game
+			res.IsWinner = true
+			voucher, err := server.store.CreateVoucher(streamCtx, db.CreateVoucherParams{
+				EventID:   event.ID,
+				ExpiresAt: event.EndTime,
+			})
+			if err != nil {
+				return status.Errorf(codes.Internal, "failed to create voucher: %s", err)
+			}
+
+			_, err = server.store.CreateVoucherOwner(streamCtx, db.CreateVoucherOwnerParams{
+				VoucherID: voucher.ID,
+				Username:  username,
+			})
+			if err != nil {
+				return status.Errorf(codes.Internal, "failed to create voucher owner: %s", err)
+			}
+		}
+
 		err = stream.Send(res)
 		if err != nil {
 			return logError(status.Errorf(codes.Unknown, "cannot send stream response: %v", err))

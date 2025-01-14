@@ -13,5 +13,6 @@ message AnswerQuestionRequest {
 
 message AnswerQuestionResponse {
   bool is_correct = 1;
-  string correct_answer = 2;
+  bool is_winner = 2;
+  string correct_answer = 3;
 }
