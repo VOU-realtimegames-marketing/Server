@@ -37,7 +37,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Cannot connect to DB")
 	}
 
-	// runDBMigration(config.MigrationURL, config.DBSource) // Uncomment this line when running docker-compose up
+	runDBMigration(config.MigrationURL, config.DBSource) // Uncomment this line when running docker-compose up
 
 	store := db.NewStore(connPool)
 
