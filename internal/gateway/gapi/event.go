@@ -75,3 +75,17 @@ func (server *Server) GetMyVouchers(ctx context.Context, req *gen.GetMyVouchersR
 	req.Username = res.User.Username
 	return server.eventClient.GetMyVouchers(ctx, req)
 }
+
+func (server *Server) WinVoucher(ctx context.Context, req *gen.WinVoucherRequest) (*gen.WinVoucherResponse, error) {
+	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	if res.User.Role != userRole {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	req.Username = res.User.Username
+	return server.eventClient.WinVoucher(ctx, req)
+}

@@ -38,6 +38,7 @@ const (
 	Gateway_UpdateEventStatus_FullMethodName   = "/vou.proto.Gateway/UpdateEventStatus"
 	Gateway_GetQuizzesByEventId_FullMethodName = "/vou.proto.Gateway/GetQuizzesByEventId"
 	Gateway_GetMyVouchers_FullMethodName       = "/vou.proto.Gateway/GetMyVouchers"
+	Gateway_WinVoucher_FullMethodName          = "/vou.proto.Gateway/WinVoucher"
 	Gateway_GetAllOtherUsers_FullMethodName    = "/vou.proto.Gateway/GetAllOtherUsers"
 )
 
@@ -67,6 +68,7 @@ type GatewayClient interface {
 	UpdateEventStatus(ctx context.Context, in *UpdateEventStatusRequest, opts ...grpc.CallOption) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error)
 	GetMyVouchers(ctx context.Context, in *GetMyVouchersRequest, opts ...grpc.CallOption) (*GetMyVouchersResponse, error)
+	WinVoucher(ctx context.Context, in *WinVoucherRequest, opts ...grpc.CallOption) (*WinVoucherResponse, error)
 	// BEGIN USER
 	GetAllOtherUsers(ctx context.Context, in *GetAllOtherUsersRequest, opts ...grpc.CallOption) (*GetAllOtherUsersResponse, error)
 }
@@ -269,6 +271,16 @@ func (c *gatewayClient) GetMyVouchers(ctx context.Context, in *GetMyVouchersRequ
 	return out, nil
 }
 
+func (c *gatewayClient) WinVoucher(ctx context.Context, in *WinVoucherRequest, opts ...grpc.CallOption) (*WinVoucherResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WinVoucherResponse)
+	err := c.cc.Invoke(ctx, Gateway_WinVoucher_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *gatewayClient) GetAllOtherUsers(ctx context.Context, in *GetAllOtherUsersRequest, opts ...grpc.CallOption) (*GetAllOtherUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllOtherUsersResponse)
@@ -305,6 +317,7 @@ type GatewayServer interface {
 	UpdateEventStatus(context.Context, *UpdateEventStatusRequest) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error)
 	GetMyVouchers(context.Context, *GetMyVouchersRequest) (*GetMyVouchersResponse, error)
+	WinVoucher(context.Context, *WinVoucherRequest) (*WinVoucherResponse, error)
 	// BEGIN USER
 	GetAllOtherUsers(context.Context, *GetAllOtherUsersRequest) (*GetAllOtherUsersResponse, error)
 	mustEmbedUnimplementedGatewayServer()
@@ -373,6 +386,9 @@ func (UnimplementedGatewayServer) GetQuizzesByEventId(context.Context, *GetQuizz
 }
 func (UnimplementedGatewayServer) GetMyVouchers(context.Context, *GetMyVouchersRequest) (*GetMyVouchersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMyVouchers not implemented")
+}
+func (UnimplementedGatewayServer) WinVoucher(context.Context, *WinVoucherRequest) (*WinVoucherResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WinVoucher not implemented")
 }
 func (UnimplementedGatewayServer) GetAllOtherUsers(context.Context, *GetAllOtherUsersRequest) (*GetAllOtherUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllOtherUsers not implemented")
@@ -740,6 +756,24 @@ func _Gateway_GetMyVouchers_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_WinVoucher_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WinVoucherRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).WinVoucher(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_WinVoucher_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).WinVoucher(ctx, req.(*WinVoucherRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Gateway_GetAllOtherUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAllOtherUsersRequest)
 	if err := dec(in); err != nil {
@@ -840,6 +874,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMyVouchers",
 			Handler:    _Gateway_GetMyVouchers_Handler,
+		},
+		{
+			MethodName: "WinVoucher",
+			Handler:    _Gateway_WinVoucher_Handler,
 		},
 		{
 			MethodName: "GetAllOtherUsers",

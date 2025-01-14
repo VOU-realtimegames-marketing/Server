@@ -19,6 +19,8 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUserAnswer(ctx context.Context, arg CreateUserAnswerParams) (UserAnswer, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
+	CreateVoucher(ctx context.Context, arg CreateVoucherParams) (Voucher, error)
+	CreateVoucherOwner(ctx context.Context, arg CreateVoucherOwnerParams) (VoucherOwner, error)
 	DeleteBranch(ctx context.Context, id int64) error
 	DeleteStore(ctx context.Context, arg DeleteStoreParams) error
 	GetEventById(ctx context.Context, id int64) (Event, error)

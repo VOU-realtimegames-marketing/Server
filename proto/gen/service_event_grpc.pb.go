@@ -25,6 +25,7 @@ const (
 	EventService_GetEventById_FullMethodName        = "/vou.proto.EventService/GetEventById"
 	EventService_UpdateEventStatus_FullMethodName   = "/vou.proto.EventService/UpdateEventStatus"
 	EventService_GetQuizzesByEventId_FullMethodName = "/vou.proto.EventService/GetQuizzesByEventId"
+	EventService_WinVoucher_FullMethodName          = "/vou.proto.EventService/WinVoucher"
 	EventService_GetMyVouchers_FullMethodName       = "/vou.proto.EventService/GetMyVouchers"
 )
 
@@ -38,6 +39,7 @@ type EventServiceClient interface {
 	GetEventById(ctx context.Context, in *GetEventByIdRequest, opts ...grpc.CallOption) (*GetEventByIdResponse, error)
 	UpdateEventStatus(ctx context.Context, in *UpdateEventStatusRequest, opts ...grpc.CallOption) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(ctx context.Context, in *GetQuizzesByEventIdRequest, opts ...grpc.CallOption) (*GetQuizzesByEventIdResponse, error)
+	WinVoucher(ctx context.Context, in *WinVoucherRequest, opts ...grpc.CallOption) (*WinVoucherResponse, error)
 	GetMyVouchers(ctx context.Context, in *GetMyVouchersRequest, opts ...grpc.CallOption) (*GetMyVouchersResponse, error)
 }
 
@@ -109,6 +111,16 @@ func (c *eventServiceClient) GetQuizzesByEventId(ctx context.Context, in *GetQui
 	return out, nil
 }
 
+func (c *eventServiceClient) WinVoucher(ctx context.Context, in *WinVoucherRequest, opts ...grpc.CallOption) (*WinVoucherResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WinVoucherResponse)
+	err := c.cc.Invoke(ctx, EventService_WinVoucher_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *eventServiceClient) GetMyVouchers(ctx context.Context, in *GetMyVouchersRequest, opts ...grpc.CallOption) (*GetMyVouchersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetMyVouchersResponse)
@@ -129,6 +141,7 @@ type EventServiceServer interface {
 	GetEventById(context.Context, *GetEventByIdRequest) (*GetEventByIdResponse, error)
 	UpdateEventStatus(context.Context, *UpdateEventStatusRequest) (*UpdateEventStatusResponse, error)
 	GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error)
+	WinVoucher(context.Context, *WinVoucherRequest) (*WinVoucherResponse, error)
 	GetMyVouchers(context.Context, *GetMyVouchersRequest) (*GetMyVouchersResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
@@ -157,6 +170,9 @@ func (UnimplementedEventServiceServer) UpdateEventStatus(context.Context, *Updat
 }
 func (UnimplementedEventServiceServer) GetQuizzesByEventId(context.Context, *GetQuizzesByEventIdRequest) (*GetQuizzesByEventIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQuizzesByEventId not implemented")
+}
+func (UnimplementedEventServiceServer) WinVoucher(context.Context, *WinVoucherRequest) (*WinVoucherResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WinVoucher not implemented")
 }
 func (UnimplementedEventServiceServer) GetMyVouchers(context.Context, *GetMyVouchersRequest) (*GetMyVouchersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMyVouchers not implemented")
@@ -290,6 +306,24 @@ func _EventService_GetQuizzesByEventId_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_WinVoucher_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WinVoucherRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).WinVoucher(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_WinVoucher_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).WinVoucher(ctx, req.(*WinVoucherRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _EventService_GetMyVouchers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMyVouchersRequest)
 	if err := dec(in); err != nil {
@@ -338,6 +372,10 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetQuizzesByEventId",
 			Handler:    _EventService_GetQuizzesByEventId_Handler,
+		},
+		{
+			MethodName: "WinVoucher",
+			Handler:    _EventService_WinVoucher_Handler,
 		},
 		{
 			MethodName: "GetMyVouchers",
