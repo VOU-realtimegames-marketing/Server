@@ -30,7 +30,7 @@ func testAnswerQuestion(gameClient *client.GameClient) {
 			break
 		}
 
-		err := gameClient.AnswerQuestionRPC(answer1[i], answer2[i], i+1)
+		err := gameClient.SendQuestionAnswer(answer1[i], answer2[i], i+1)
 		if err != nil {
 			log.Fatal(err)
 		}

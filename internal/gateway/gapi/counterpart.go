@@ -11,6 +11,7 @@ import (
 const (
 	counterpartRole = "partner"
 	adminRole       = "admin"
+	userRole        = "user"
 )
 
 // STORE API

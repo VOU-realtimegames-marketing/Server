@@ -161,6 +161,7 @@ type Voucher struct {
 	Type      string      `json:"type"`
 	Status    string      `json:"status"`
 	ExpiresAt time.Time   `json:"expires_at"`
+	Discount  int32       `json:"discount"`
 }
 
 type VoucherOwner struct {

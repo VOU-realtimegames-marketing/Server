@@ -73,6 +73,22 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+  game:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-game
+    ports:
+      - "50054:50054"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
+  user:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile-user
+    ports:
+      - "50055:50055"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/vou-marketing?sslmode=disable
   gateway:
     build: 
       context: .
@@ -84,10 +100,14 @@ services:
       - AUTH_SERVER_ADDRESS=auth:50051
       - COUNTERPART_SERVER_ADDRESS=counterpart:50052
       - EVENT_SERVER_ADDRESS=event:50053
+      - GAME_SERVER_ADDRESS=game:50054
+      - USER_SERVER_ADDRESS=user:50055
     depends_on:
       - auth
       - counterpart
       - quiz
       - event
+      - game
+      - user
 volumes:
   data-volume:

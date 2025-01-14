@@ -14,6 +14,10 @@ SELECT * FROM users
 WHERE username = sqlc.narg(username)
   OR email = sqlc.narg(email) LIMIT 1;
 
+-- name: ListAllOtherUsers :many
+SELECT * FROM users
+WHERE username <> $1;
+
 -- name: UpdateUser :one
 UPDATE users
 SET

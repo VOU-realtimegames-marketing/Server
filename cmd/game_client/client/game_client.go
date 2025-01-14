@@ -22,8 +22,8 @@ func NewGameClient(cc *grpc.ClientConn) *GameClient {
 	return &GameClient{service}
 }
 
-// AnswerQuestion calls AnswerQuestion RPC
-func (gameClient *GameClient) AnswerQuestionRPC(
+// SendQuestionAnswer calls AnswerQuestion RPC
+func (gameClient *GameClient) SendQuestionAnswer(
 	answer1 string, // cuong_admin
 	answer2 string, // lehuynhcuong
 	question_num int,

@@ -62,10 +62,13 @@ event:
 quiz:
 	cd cmd/quiz && go run main.go
 
+user:
+	cd cmd/user && go run main.go
+
 game:
 	cd cmd/game && go run main.go
 
 game_client:
 	cd cmd/game_client && go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto wire redis rabbitmq auth counterpart gateway
+.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration sqlc proto wire redis rabbitmq auth counterpart gateway event quiz user game game_client

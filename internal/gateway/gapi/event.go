@@ -61,3 +61,17 @@ func (server *Server) GetQuizzesByEventId(ctx context.Context, req *gen.GetQuizz
 	req.IsAdmin = res.User.Role == adminRole
 	return server.eventClient.GetQuizzesByEventId(ctx, req)
 }
+
+func (server *Server) GetMyVouchers(ctx context.Context, req *gen.GetMyVouchersRequest) (*gen.GetMyVouchersResponse, error) {
+	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	if res.User.Role != userRole {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized action: %s", err)
+	}
+
+	req.Username = res.User.Username
+	return server.eventClient.GetMyVouchers(ctx, req)
+}
