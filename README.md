@@ -2,6 +2,9 @@
 
 VOU Microservices
 
+## Architecture
+![vou-architecture](docs/architecture.svg)
+
 ## Engine Requirements
 
 - Linux / MacOS
