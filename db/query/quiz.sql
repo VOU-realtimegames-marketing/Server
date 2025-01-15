@@ -2,9 +2,10 @@
 INSERT INTO quizzes (
   event_id,
   content,
-  quiz_genre
+  quiz_genre,
+  quiz_num
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 ) RETURNING *;
 
 -- name: GetQuizzesByEventId :one

@@ -240,6 +240,52 @@ func (q *Queries) CreateFakeUser(ctx context.Context, arg CreateFakeUserParams) 
 	return username, err
 }
 
+const createFakeVoucher = `-- name: CreateFakeVoucher :one
+INSERT INTO vouchers (event_id, qr_code, type, status, expires_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+`
+
+type CreateFakeVoucherParams struct {
+	EventID   int64       `json:"event_id"`
+	QrCode    pgtype.Text `json:"qr_code"`
+	Type      string      `json:"type"`
+	Status    string      `json:"status"`
+	ExpiresAt time.Time   `json:"expires_at"`
+}
+
+func (q *Queries) CreateFakeVoucher(ctx context.Context, arg CreateFakeVoucherParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createFakeVoucher,
+		arg.EventID,
+		arg.QrCode,
+		arg.Type,
+		arg.Status,
+		arg.ExpiresAt,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createFakeVoucherOwner = `-- name: CreateFakeVoucherOwner :one
+INSERT INTO voucher_owner (username, voucher_id, created_at)
+VALUES ($1, $2, $3)
+RETURNING id
+`
+
+type CreateFakeVoucherOwnerParams struct {
+	Username  string    `json:"username"`
+	VoucherID int64     `json:"voucher_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func (q *Queries) CreateFakeVoucherOwner(ctx context.Context, arg CreateFakeVoucherOwnerParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createFakeVoucherOwner, arg.Username, arg.VoucherID, arg.CreatedAt)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createGame = `-- name: CreateGame :one
 INSERT INTO games (name, photo, type, play_guide, gift_allowed)
 VALUES ($1, $2, $3, $4, $5)
@@ -262,52 +308,6 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (int64, 
 		arg.PlayGuide,
 		arg.GiftAllowed,
 	)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createVoucher = `-- name: CreateVoucher :one
-INSERT INTO vouchers (event_id, qr_code, type, status, expires_at)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
-`
-
-type CreateVoucherParams struct {
-	EventID   int64       `json:"event_id"`
-	QrCode    pgtype.Text `json:"qr_code"`
-	Type      string      `json:"type"`
-	Status    string      `json:"status"`
-	ExpiresAt time.Time   `json:"expires_at"`
-}
-
-func (q *Queries) CreateVoucher(ctx context.Context, arg CreateVoucherParams) (int64, error) {
-	row := q.db.QueryRow(ctx, createVoucher,
-		arg.EventID,
-		arg.QrCode,
-		arg.Type,
-		arg.Status,
-		arg.ExpiresAt,
-	)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createVoucherOwner = `-- name: CreateVoucherOwner :one
-INSERT INTO voucher_owner (username, voucher_id, created_at)
-VALUES ($1, $2, $3)
-RETURNING id
-`
-
-type CreateVoucherOwnerParams struct {
-	Username  string    `json:"username"`
-	VoucherID int64     `json:"voucher_id"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-func (q *Queries) CreateVoucherOwner(ctx context.Context, arg CreateVoucherOwnerParams) (int64, error) {
-	row := q.db.QueryRow(ctx, createVoucherOwner, arg.Username, arg.VoucherID, arg.CreatedAt)
 	var id int64
 	err := row.Scan(&id)
 	return id, err

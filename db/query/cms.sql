@@ -54,7 +54,7 @@ SELECT id
 FROM vouchers
 WHERE event_id = $1 AND qr_code = $2 AND type = $3;
 
--- name: CreateVoucher :one
+-- name: CreateFakeVoucher :one
 INSERT INTO vouchers (event_id, qr_code, type, status, expires_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
@@ -64,7 +64,7 @@ SELECT id
 FROM voucher_owner
 WHERE username = $1 AND voucher_id = $2;
 
--- name: CreateVoucherOwner :one
+-- name: CreateFakeVoucherOwner :one
 INSERT INTO voucher_owner (username, voucher_id, created_at)
 VALUES ($1, $2, $3)
 RETURNING id;

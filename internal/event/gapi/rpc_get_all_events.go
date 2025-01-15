@@ -25,6 +25,7 @@ func convertAllEvents(events []db.ListEventsRow) []*gen.Event {
 			EndTime:         timestamppb.New(event.EndTime),
 			Store:           &event.Store,
 			GameType:        &event.GameType,
+			QuizNum:         &event.QuizNum.Int32,
 		}
 	}
 	return genEvents

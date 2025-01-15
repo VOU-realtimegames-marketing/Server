@@ -84,6 +84,42 @@ func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) 
 	return i, err
 }
 
+const listAllOtherUsers = `-- name: ListAllOtherUsers :many
+SELECT username, hashed_password, full_name, email, role, photo, active, is_email_verified, password_changed_at, created_at FROM users
+WHERE username <> $1
+`
+
+func (q *Queries) ListAllOtherUsers(ctx context.Context, username string) ([]User, error) {
+	rows, err := q.db.Query(ctx, listAllOtherUsers, username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.Username,
+			&i.HashedPassword,
+			&i.FullName,
+			&i.Email,
+			&i.Role,
+			&i.Photo,
+			&i.Active,
+			&i.IsEmailVerified,
+			&i.PasswordChangedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET

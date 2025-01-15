@@ -5,6 +5,7 @@ import (
 	"VOU-Server/internal/gateway/client/auth"
 	"VOU-Server/internal/gateway/client/counterpart"
 	"VOU-Server/internal/gateway/client/event"
+	"VOU-Server/internal/gateway/client/user"
 	"VOU-Server/proto/gen"
 	"fmt"
 )
@@ -14,12 +15,14 @@ type Server struct {
 	authClient        gen.AuthServiceClient
 	counterpartClient gen.CounterpartServiceClient
 	eventClient       gen.EventServiceClient
+	userClient        gen.UserServiceClient
 }
 
 func NewServer(config config.Config) (*Server, error) {
 	authClient, err := auth.NewServiceClient(config.AuthServerAddress)
 	counterpartClient, err := counterpart.NewServiceClient(config.CounterpartServerAddress)
 	eventClient, err := event.NewServiceClient(config.EventServerAddress)
+	userClient, err := user.NewServiceClient(config.UserServerAddress)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot create auth client: %w", err)
@@ -29,6 +32,7 @@ func NewServer(config config.Config) (*Server, error) {
 		authClient:        authClient,
 		counterpartClient: counterpartClient,
 		eventClient:       eventClient,
+		userClient:        userClient,
 	}
 	return server, nil
 }

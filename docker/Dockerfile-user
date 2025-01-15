@@ -1,0 +1,23 @@
+# Build stage
+FROM golang:1.23-alpine3.20 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o user-service ./cmd/user/main.go
+
+# Use a smaller base image for the final image
+FROM alpine:3.20
+WORKDIR /app
+COPY --from=builder /app/user-service .
+COPY cmd/user/config/app.env ./config/
+
+# Expose the port the service runs on
+EXPOSE 50055
+
+# Command to run the executable
+CMD ["/app/user-service"]
+
+# docker build -t user-service:latest -f docker/Dockerfile-user .
+# docker run --name user -p 50055:50055 user-service:latest
+# docker run --name user --network vou-network -p 50055:50055 user-service:latest

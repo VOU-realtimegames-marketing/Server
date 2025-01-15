@@ -120,9 +120,28 @@ func (q *Queries) GetEventByIdAndOwner(ctx context.Context, arg GetEventByIdAndO
 }
 
 const listEvents = `-- name: ListEvents :many
-SELECT E.id, E.owner, E.game_id, E.store_id, E.name, E.photo, E.voucher_quantity, E.status, E.start_time, E.end_time, G.type as game_type, S.name as store
-FROM events E, games G, stores S
-WHERE E.game_id = G.id AND E.store_id = S.id
+SELECT 
+    E.id, 
+    E.owner, 
+    E.game_id, 
+    E.store_id, 
+    E.name, 
+    E.photo, 
+    E.voucher_quantity, 
+    E.status, 
+    E.start_time, 
+    E.end_time, 
+    G.type AS game_type, 
+    S.name AS store, 
+    Q.quiz_num
+FROM 
+    events E
+JOIN 
+    games G ON E.game_id = G.id
+JOIN 
+    stores S ON E.store_id = S.id
+LEFT JOIN 
+    quizzes Q ON E.id = Q.event_id
 `
 
 type ListEventsRow struct {
@@ -138,6 +157,7 @@ type ListEventsRow struct {
 	EndTime         time.Time    `json:"end_time"`
 	GameType        string       `json:"game_type"`
 	Store           string       `json:"store"`
+	QuizNum         pgtype.Int4  `json:"quiz_num"`
 }
 
 func (q *Queries) ListEvents(ctx context.Context) ([]ListEventsRow, error) {
@@ -162,6 +182,7 @@ func (q *Queries) ListEvents(ctx context.Context) ([]ListEventsRow, error) {
 			&i.EndTime,
 			&i.GameType,
 			&i.Store,
+			&i.QuizNum,
 		); err != nil {
 			return nil, err
 		}

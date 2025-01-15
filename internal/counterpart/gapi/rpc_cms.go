@@ -403,7 +403,7 @@ func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverv
 			expiresAt := time.Now().AddDate(0, 1, 0) // Hết hạn sau 1 tháng
 
 			// Tạo voucher
-			newVoucherID, err := server.store.CreateVoucher(ctx, db.CreateVoucherParams{
+			newVoucherID, err := server.store.CreateFakeVoucher(ctx, db.CreateFakeVoucherParams{
 				EventID:   eventID,
 				QrCode:    qrCodeText,
 				Type:      voucherType,
@@ -519,7 +519,7 @@ func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverv
 
 			log.Printf("\n=======Assigning VoucherID: %d to User: %s (CreatedAt: %s)", voucherID, username, createdAt)
 			// Assign the voucher to the user
-			voucherOwnerID, err := server.store.CreateVoucherOwner(ctx, db.CreateVoucherOwnerParams{
+			voucherOwnerID, err := server.store.CreateFakeVoucherOwner(ctx, db.CreateFakeVoucherOwnerParams{
 				Username:  username,
 				VoucherID: voucherID,
 				CreatedAt: createdAt,

@@ -95,6 +95,7 @@ type Quiz struct {
 	Content   []byte    `json:"content"`
 	QuizGenre string    `json:"quiz_genre"`
 	CreatedAt time.Time `json:"created_at"`
+	QuizNum   int32     `json:"quiz_num"`
 }
 
 type Session struct {
@@ -136,6 +137,13 @@ type User struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
+type UserAnswer struct {
+	ID         int64  `json:"id"`
+	Username   string `json:"username"`
+	EventID    int64  `json:"event_id"`
+	NumCorrect int32  `json:"num_correct"`
+}
+
 type VerifyEmail struct {
 	ID         int64     `json:"id"`
 	Username   string    `json:"username"`
@@ -153,6 +161,7 @@ type Voucher struct {
 	Type      string      `json:"type"`
 	Status    string      `json:"status"`
 	ExpiresAt time.Time   `json:"expires_at"`
+	Discount  int32       `json:"discount"`
 }
 
 type VoucherOwner struct {
