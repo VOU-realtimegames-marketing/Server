@@ -13,7 +13,7 @@ import (
 type Querier interface {
 	CheckEventExists(ctx context.Context, arg CheckEventExistsParams) (int64, error)
 	CheckGameExists(ctx context.Context, type_ string) (int64, error)
-	CheckStoreExists(ctx context.Context, arg CheckStoreExistsParams) (interface{}, error)
+	CheckStoreExists(ctx context.Context, arg CheckStoreExistsParams) (int64, error)
 	CheckVoucherExists(ctx context.Context, arg CheckVoucherExistsParams) (int64, error)
 	CheckVoucherOwnerExists(ctx context.Context, arg CheckVoucherOwnerExistsParams) (int64, error)
 	CountVoucherOwners(ctx context.Context) (int64, error)

@@ -54,10 +54,10 @@ func (q *Queries) CheckGameExists(ctx context.Context, type_ string) (int64, err
 }
 
 const checkStoreExists = `-- name: CheckStoreExists :one
-SELECT COALESCE((SELECT id 
-                 FROM stores 
-                 WHERE name = $1 AND owner = $2 
-                 LIMIT 1), 0) AS id
+SELECT id
+FROM stores
+WHERE name = $1 AND owner = $2
+LIMIT 1
 `
 
 type CheckStoreExistsParams struct {
@@ -65,9 +65,9 @@ type CheckStoreExistsParams struct {
 	Owner string `json:"owner"`
 }
 
-func (q *Queries) CheckStoreExists(ctx context.Context, arg CheckStoreExistsParams) (interface{}, error) {
+func (q *Queries) CheckStoreExists(ctx context.Context, arg CheckStoreExistsParams) (int64, error) {
 	row := q.db.QueryRow(ctx, checkStoreExists, arg.Name, arg.Owner)
-	var id interface{}
+	var id int64
 	err := row.Scan(&id)
 	return id, err
 }
@@ -208,23 +208,26 @@ func (q *Queries) CreateFakeStore(ctx context.Context, arg CreateFakeStoreParams
 }
 
 const createFakeUser = `-- name: CreateFakeUser :one
-INSERT INTO users (username, hashed_password, full_name, email, role, created_at)
-VALUES ($1, $2, $3, $4, $5, NOW())
+INSERT INTO users (username, hashed_password, full_name, email, role, photo, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (username) DO UPDATE SET 
     hashed_password = EXCLUDED.hashed_password,
     full_name = EXCLUDED.full_name,
     email = EXCLUDED.email,
     role = EXCLUDED.role,
+    photo = EXCLUDED.photo,
     created_at = EXCLUDED.created_at
 RETURNING username
 `
 
 type CreateFakeUserParams struct {
-	Username       string `json:"username"`
-	HashedPassword string `json:"hashed_password"`
-	FullName       string `json:"full_name"`
-	Email          string `json:"email"`
-	Role           string `json:"role"`
+	Username       string    `json:"username"`
+	HashedPassword string    `json:"hashed_password"`
+	FullName       string    `json:"full_name"`
+	Email          string    `json:"email"`
+	Role           string    `json:"role"`
+	Photo          string    `json:"photo"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateFakeUser(ctx context.Context, arg CreateFakeUserParams) (string, error) {
@@ -234,6 +237,8 @@ func (q *Queries) CreateFakeUser(ctx context.Context, arg CreateFakeUserParams) 
 		arg.FullName,
 		arg.Email,
 		arg.Role,
+		arg.Photo,
+		arg.CreatedAt,
 	)
 	var username string
 	err := row.Scan(&username)

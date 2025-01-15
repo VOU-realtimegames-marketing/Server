@@ -1,19 +1,20 @@
 -- name: CreateFakeUser :one
-INSERT INTO users (username, hashed_password, full_name, email, role, created_at)
-VALUES ($1, $2, $3, $4, $5, NOW())
+INSERT INTO users (username, hashed_password, full_name, email, role, photo, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (username) DO UPDATE SET 
     hashed_password = EXCLUDED.hashed_password,
     full_name = EXCLUDED.full_name,
     email = EXCLUDED.email,
     role = EXCLUDED.role,
+    photo = EXCLUDED.photo,
     created_at = EXCLUDED.created_at
 RETURNING username;
 
 -- name: CheckStoreExists :one
-SELECT COALESCE((SELECT id 
-                 FROM stores 
-                 WHERE name = $1 AND owner = $2 
-                 LIMIT 1), 0) AS id;
+SELECT id
+FROM stores
+WHERE name = $1 AND owner = $2
+LIMIT 1;
 
 -- name: CreateFakeStore :one
 INSERT INTO stores (name, owner, business_type)
