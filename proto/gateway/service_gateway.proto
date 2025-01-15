@@ -17,6 +17,7 @@ import "counterpart/rpc_delete_store.proto";
 import "counterpart/rpc_create_branch.proto";
 import "counterpart/rpc_get_branchs.proto";
 import "counterpart/rpc_delete_branch.proto";
+import "counterpart/rpc_cms.proto";
 
 import "event-quiz/rpc_create_event.proto";
 import "event-quiz/rpc_get_events_of_owner.proto";
@@ -99,6 +100,21 @@ service Gateway {
     option (google.api.http) = {
       delete: "/api/v1/branches/{id}"
       body: "*"
+    };
+  }
+  rpc GetPartnerCmsOverview(GetPartnerCmsOverviewRequest) returns (GetPartnerCmsOverviewResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/cms/partner-overview"
+    };
+  }
+  rpc FakeCmsOverview(FakeCmsOverviewRequest) returns (FakeCmsOverviewResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/cms/fake_data"
+    };
+  }
+  rpc GetAdminCmsOverview(GetAdminCmsOverviewRequest) returns (GetAdminCmsOverviewResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/cms/admin-overview"
     };
   }
   // END COUNTERPART
