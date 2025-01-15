@@ -252,8 +252,43 @@ SELECT
     (SELECT COUNT(*) FROM users WHERE role = 'user') AS total_user,
     (SELECT COUNT(*) FROM users WHERE role = 'user' AND created_at >= NOW() - INTERVAL '1 MONTH') AS total_user_last_month,
     (SELECT COUNT(*) FROM branchs) AS total_branch,
-    (SELECT COUNT(*) FROM branchs WHERE created_at >= NOW() - INTERVAL '1 MONTH') AS total_branch_last_month,
-    (SELECT SUM(v.voucher_quantity * 10) FROM events e JOIN vouchers v ON e.id = v.event_id) AS total_earning,
-    (SELECT SUM(v.voucher_quantity * 10) FROM events e JOIN vouchers v ON e.id = v.event_id WHERE e.start_time >= NOW() - INTERVAL '1 MONTH') AS total_earning_last_month;
+    (SELECT COUNT(*) FROM branchs) AS total_branch; -- todo: thêm created_at vào mỗi Table (bắt buộc)
+    -- (SELECT COUNT(*) FROM branchs WHERE created_at >= NOW() - INTERVAL '1 MONTH') AS total_branch_last_month;
 
+-- Description:
+-- Đầu tiên lấy tất cả user có role là "partner" trong table "users", ví dụ được 3 partner có user name là: ["partner_01", "partner_02", "partner_03"]
+-- Tiếp theo với từng Partner ở trên, ví dụ partner_01, sẽ tìm tất cả events có event.owner = username = "partner_01"
+-- Từ các events này tiếp tục query tất cả "vouchers" có voucher.event_id bằng event id trên
+-- Từ các vouchers này tiếp tục query "voucher_owner" tất cả có voucher_owner.voucher_id bằng voucher id trên
+-- Tổng hợp list voucher_owner của các voucher từ tất cả events trên, ta distinct theo voucher_owner.username, sẽ ra được số lượng user chơi game nhận được voucher groupby Partner. 
+
+-- name: GetUserPlayCountByPartner :many
+SELECT 
+    u.username AS partner_username,    -- Username của partner
+    COUNT(DISTINCT vo.username) AS total_user_play -- Tổng số user chơi game của partner
+FROM users u
+LEFT JOIN stores s ON s.owner = u.username
+LEFT JOIN events e ON e.store_id = s.id
+LEFT JOIN vouchers v ON v.event_id = e.id
+LEFT JOIN voucher_owner vo ON vo.voucher_id = v.id
+WHERE u.role = 'partner' -- Chỉ tính user là partner
+GROUP BY u.username
+ORDER BY total_user_play DESC;
+
+
+-- Description:
+-- This query retrieves the 5 most recently created partners from the "users" table.
+-- Only users with the role "partner" are considered.
+-- The output includes the username, full name, email, and photo of each partner.
+
+-- name: GetRecentPartners :many
+SELECT 
+    username AS username,      -- Partner's username
+    full_name AS full_name,    -- Partner's full name
+    email AS email,            -- Partner's email
+    photo AS photo             -- Partner's profile photo
+FROM users
+WHERE role = 'partner'         -- Only include users with the "partner" role
+ORDER BY created_at DESC       -- Sort by creation date (newest first)
+LIMIT 5;                       -- Limit the result to the 5 most recent partners
 

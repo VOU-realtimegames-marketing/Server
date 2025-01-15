@@ -152,10 +152,6 @@ func mapUserStoreStats(data []db.GetUserStatsByStoreRow) []*gen.UserStoreStats {
 	return result
 }
 
-func (server *Server) GetAdminCmsOverview(ctx context.Context, req *gen.GetAdminCmsOverviewRequest) (*gen.GetAdminCmsOverviewResponse, error) {
-	return &gen.GetAdminCmsOverviewResponse{}, nil
-}
-
 func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverviewRequest) (*gen.FakeCmsOverviewResponse, error) {
 	log.Println("Starting FakeCmsOverview")
 
@@ -545,4 +541,109 @@ func (server *Server) FakeCmsOverview(ctx context.Context, req *gen.FakeCmsOverv
 
 	log.Println("FakeCmsOverview completed successfully")
 	return &gen.FakeCmsOverviewResponse{}, nil
+}
+
+func (server *Server) GetAdminCmsOverview(ctx context.Context, req *gen.GetAdminCmsOverviewRequest) (*gen.GetAdminCmsOverviewResponse, error) {
+	log.Println("Starting GetAdminCmsOverview")
+
+	// Fetch admin stats
+	adminStats, err := server.store.GetAdminStats(ctx)
+	if err != nil {
+		log.Printf("Failed to fetch admin stats: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to fetch admin stats: %v", err)
+	}
+
+	log.Println("\n_________adminStats: ", adminStats)
+
+	// Fetch event creation stats (bar chart)
+	eventCreatedStats, err := server.store.GetEventCreatedStats(ctx)
+	if err != nil {
+		log.Printf("Failed to fetch event creation stats: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to fetch event creation stats: %v", err)
+	}
+
+	// // Map event creation stats
+	chartEventCreated := []*gen.UserPlayData{}
+	for _, stat := range eventCreatedStats {
+		chartEventCreated = append(chartEventCreated, &gen.UserPlayData{
+			Date:      stat.Date.Time.Unix(),
+			QuizGame:  int32(stat.QuizGame),
+			ShakeGame: int32(stat.ShakeGame),
+		})
+	}
+	log.Println("\n_________chartEventCreated: ", chartEventCreated)
+
+	// Fetch user play stats (area chart)
+	userPlayStats, err := server.store.GetUserPlayStats(ctx)
+	if err != nil {
+		log.Printf("Failed to fetch user play stats: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to fetch user play stats: %v", err)
+	}
+
+	// Map user play stats
+	chartUserPlayGame := []*gen.VoucherStats{}
+	for _, stat := range userPlayStats {
+		chartUserPlayGame = append(chartUserPlayGame, &gen.VoucherStats{
+			Month:     stat.Month,
+			QuizGame:  int32(stat.QuizGame),
+			ShakeGame: int32(stat.ShakeGame),
+		})
+	}
+	log.Println("\n_________chartUserPlayGame: ", chartUserPlayGame)
+
+	// Fetch user stats by Partner (pie chart)
+	userStoreStats, err := server.store.GetUserPlayCountByPartner(ctx)
+	if err != nil {
+		log.Printf("Failed to fetch user store stats: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to fetch user store stats: %v", err)
+	}
+	log.Println("\n_________userStoreStats: ", userStoreStats)
+
+	// Map user stats by Partner
+	chartUserPlayGroupByPartner := []*gen.AdminUserPlayGroupByPartnerStats{}
+	for _, stat := range userStoreStats {
+		chartUserPlayGroupByPartner = append(chartUserPlayGroupByPartner, &gen.AdminUserPlayGroupByPartnerStats{
+			Username:      stat.PartnerUsername,
+			TotalUserPlay: int32(stat.TotalUserPlay),
+		})
+	}
+	log.Println("\n_________chartUserPlayGroupByPartner: ", chartUserPlayGroupByPartner)
+	// Fetch recent partners
+	recentPartners, err := server.store.GetRecentPartners(ctx)
+	if err != nil {
+		log.Printf("Failed to fetch recent partners: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to fetch recent partners: %v", err)
+	}
+
+	// Map recent partners
+	listRecentPartners := []*gen.RecentUser{}
+	for _, partner := range recentPartners {
+		listRecentPartners = append(listRecentPartners, &gen.RecentUser{
+			Username: partner.Username,
+			FullName: partner.FullName,
+			Email:    partner.Email,
+			Photo:    partner.Photo,
+		})
+	}
+
+	log.Println("\n_________listRecentPartners: ", listRecentPartners)
+
+	// Construct response
+	response := &gen.GetAdminCmsOverviewResponse{
+		TotalPartner:                int32(adminStats.TotalPartner),
+		TotalPartnerLastMonth:       int32(adminStats.TotalPartnerLastMonth),
+		TotalUser:                   int32(adminStats.TotalUser),
+		TotalUserLastMonth:          int32(adminStats.TotalUserLastMonth),
+		TotalBranch:                 int32(adminStats.TotalBranch),
+		TotalBranchLastMonth:        int32(adminStats.TotalPartnerLastMonth),
+		TotalEarning:                float64(0.0), // TODO: Xử lý lợi nhuận của VOU
+		TotalEarningLastMonth:       float64(0.0), // TODO: Xử lý lợi nhuận của VOU
+		ChartEventCreated:           chartEventCreated,
+		ChartUserPlayGame:           chartUserPlayGame,
+		ChartUserPlayGroupByPartner: chartUserPlayGroupByPartner,
+		ListRecentPartners:          listRecentPartners,
+	}
+
+	log.Println("GetAdminCmsOverview completed successfully")
+	return response, nil
 }

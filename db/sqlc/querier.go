@@ -41,6 +41,11 @@ type Querier interface {
 	GetEventCreatedStats(ctx context.Context) ([]GetEventCreatedStatsRow, error)
 	GetEventsByStore(ctx context.Context, storeID int64) ([]GetEventsByStoreRow, error)
 	GetQuizzesByEventId(ctx context.Context, eventID int64) (Quiz, error)
+	// Description:
+	// This query retrieves the 5 most recently created partners from the "users" table.
+	// Only users with the role "partner" are considered.
+	// The output includes the username, full name, email, and photo of each partner.
+	GetRecentPartners(ctx context.Context) ([]GetRecentPartnersRow, error)
 	GetRecentUsers(ctx context.Context) ([]GetRecentUsersRow, error)
 	GetRecentVoucherOwners(ctx context.Context, owner string) ([]GetRecentVoucherOwnersRow, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
@@ -49,6 +54,14 @@ type Querier interface {
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error)
 	GetUserPlayByDate(ctx context.Context, owner string) ([]GetUserPlayByDateRow, error)
+	// todo: thêm created_at vào mỗi Table (bắt buộc)
+	// Description:
+	// Đầu tiên lấy tất cả user có role là "partner" trong table "users", ví dụ được 3 partner có user name là: ["partner_01", "partner_02", "partner_03"]
+	// Tiếp theo với từng Partner ở trên, ví dụ partner_01, sẽ tìm tất cả events có event.owner = username = "partner_01"
+	// Từ các events này tiếp tục query tất cả "vouchers" có voucher.event_id bằng event id trên
+	// Từ các vouchers này tiếp tục query "voucher_owner" tất cả có voucher_owner.voucher_id bằng voucher id trên
+	// Tổng hợp list voucher_owner của các voucher từ tất cả events trên, ta distinct theo voucher_owner.username, sẽ ra được số lượng user chơi game nhận được voucher groupby Partner.
+	GetUserPlayCountByPartner(ctx context.Context) ([]GetUserPlayCountByPartnerRow, error)
 	GetUserPlayStats(ctx context.Context) ([]GetUserPlayStatsRow, error)
 	GetUserStatsByStore(ctx context.Context, owner string) ([]GetUserStatsByStoreRow, error)
 	GetUserStoreStats(ctx context.Context) ([]GetUserStoreStatsRow, error)

@@ -52,10 +52,9 @@ message GetAdminCmsOverviewRequest {
     string owner = 1;        // Owner của CMS
 }
 
-message AdminUserStoreStats {
-    int64 id = 1;      // ID cửa hàng
-    string username = 2;   // Tên cửa hàng
-    int32 total_user_play = 3; // Tổng số user chơi tại cửa hàng
+message AdminUserPlayGroupByPartnerStats {
+    string username = 2;   // Username của partner
+    int32 total_user_play = 3; // Tổng số user chơi game của partner này
 }
 
 message GetAdminCmsOverviewResponse {
@@ -65,12 +64,12 @@ message GetAdminCmsOverviewResponse {
     int32 total_user_last_month = 4; 
     int32 total_branch = 5; // Tổng số chi nhánh
     int32 total_branch_last_month = 6; 
-    int32 total_earning = 7; // Tổng doanh thu
-    int32 total_earning_last_month = 8;
+    double total_earning = 7; // Tổng doanh thu
+    double total_earning_last_month = 8;
 
     repeated UserPlayData chart_event_created = 9;  // Thống kê số lượng user chơi game theo ngày
     repeated VoucherStats chart_user_play_game = 10;   // Danh sách người dùng mới nhận voucher
-    repeated AdminUserStoreStats chart_user_store = 11;    // Thống kê voucher theo tháng
+    repeated AdminUserPlayGroupByPartnerStats chart_user_play_group_by_partner = 11;    // Thống kê voucher theo tháng
     repeated RecentUser list_recent_partners = 12; // Thống kê user theo cửa hàng
 }
 
