@@ -27,11 +27,8 @@ services:
       timeout: 30s
       retries: 3
     ports:
-      - "5672:5672" # Port AMQP
-      - "15672:15672" # Port Management UI (Web)
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq # Volume cho dữ liệu của queue RabbitMQ
-
+      - "5672:5672"
+      - "15672:15672"
   auth:
     build: 
       context: .
@@ -112,18 +109,5 @@ services:
       - event
       - game
       - user
-  
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@example.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
-    ports:
-      - "8081:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
 volumes:
   data-volume:
-  rabbitmq_data: 
