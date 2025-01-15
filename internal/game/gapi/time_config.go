@@ -5,13 +5,13 @@ import "time"
 // 0------ 6 -----12 ----- 18 ------ 24 -------30
 const (
 	// Time to answer a question in seconds
-	QUESTION_DISPLAY_TIME int32 = 5
+	QUESTION_DISPLAY_TIME int32 = 10
 
 	// Time for the server to handle the answer in seconds
 	SERVER_HANDLE_TIME int32 = 2
 
 	// Time to show the correct answer in seconds
-	ANSWER_DISPLAY_TIME int32 = 1
+	ANSWER_DISPLAY_TIME int32 = 3
 
 	// Time to show the leaderboard in seconds
 	LEADERBOARD_DISPLAY_TIME int32 = 3

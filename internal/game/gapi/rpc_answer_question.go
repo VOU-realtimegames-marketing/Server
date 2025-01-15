@@ -55,7 +55,7 @@ func (server *Server) AnswerQuestion(stream grpc.BidiStreamingServer[gen.AnswerQ
 		if time1.Before(time2) && answer != "" {
 			fmt.Println("1.time1", time1)
 			fmt.Println("1.time2", time2)
-
+			fmt.Println("answer slow")
 			return status.Errorf(codes.InvalidArgument, "question time is over")
 		}
 
@@ -65,7 +65,7 @@ func (server *Server) AnswerQuestion(stream grpc.BidiStreamingServer[gen.AnswerQ
 		if time1.After(time2) {
 			fmt.Println("2.time1", time1)
 			fmt.Println("2.time2", time2)
-
+			fmt.Println("answer too fast")
 			return status.Errorf(codes.InvalidArgument, "Your question number exceeds current one")
 		}
 
@@ -117,6 +117,7 @@ func (server *Server) AnswerQuestion(stream grpc.BidiStreamingServer[gen.AnswerQ
 			}
 
 			res.IsCorrect = true
+			fmt.Println("numCorrect", userAnswer.NumCorrect)
 		}
 
 		if questionNum == quizzesDB.QuizNum && userAnswer.NumCorrect == quizzesDB.QuizNum {
