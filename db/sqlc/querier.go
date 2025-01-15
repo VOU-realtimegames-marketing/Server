@@ -53,7 +53,6 @@ type Querier interface {
 	GetStoresByOwner(ctx context.Context, owner string) ([]GetStoresByOwnerRow, error)
 	GetUser(ctx context.Context, arg GetUserParams) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error)
-	GetUserPlayByDate(ctx context.Context, owner string) ([]GetUserPlayByDateRow, error)
 	// todo: thêm created_at vào mỗi Table (bắt buộc)
 	// Description:
 	// Đầu tiên lấy tất cả user có role là "partner" trong table "users", ví dụ được 3 partner có user name là: ["partner_01", "partner_02", "partner_03"]
@@ -63,6 +62,14 @@ type Querier interface {
 	// Tổng hợp list voucher_owner của các voucher từ tất cả events trên, ta distinct theo voucher_owner.username, sẽ ra được số lượng user chơi game nhận được voucher groupby Partner.
 	GetUserPlayCountByPartner(ctx context.Context) ([]GetUserPlayCountByPartnerRow, error)
 	GetUserPlayStats(ctx context.Context) ([]GetUserPlayStatsRow, error)
+	// Description: Count số lượng user chơi game quizGame và shakeGame theo từng ngày của 1 Partner.
+	// input: partner username, var owner = "partner_01"
+	// flow:
+	//    Từ owner, tìm tất cả events có event.owner = owner = "partner_01", groupby "event.game_id" (game_id 1 là quizGame, game_id 2 là shakeGame)
+	//    Với mỗi list events group by game_id, ví dụ từ list events có game_id = 1 (quizGame), tiếp tục query tất cả "vouchers" có voucher.event_id nằm trong list events id trên, kết quả sẽ ra được list vouchers của game_id =1 thuộc owner="partner_01). Tương tự list events của các game_id còn lại
+	//    Từ list vouchers đã query (của từng game_id) tiếp tục query table "voucher_owner" với voucher_owner.voucher_id nằm trong list vouchers id trên, group by từng ngày bởi field "voucher_owner.created_at", định dạng "YYYY-MM-dd". Kết quả sẽ ra được list voucher_owner thuộc từng thể loại game_id theo từng ngày
+	//    Tổng hợp tất cả  voucher_owner từ các vouchers trên, distinct by username, sẽ ra được số lượng user chơi game_id đó theo từng ngày
+	GetUserPlayStatsByGameAndDate(ctx context.Context, owner string) ([]GetUserPlayStatsByGameAndDateRow, error)
 	GetUserStatsByStore(ctx context.Context, owner string) ([]GetUserStatsByStoreRow, error)
 	GetUserStoreStats(ctx context.Context) ([]GetUserStoreStatsRow, error)
 	GetVoucherOwnersByVoucher(ctx context.Context, voucherID int64) ([]GetVoucherOwnersByVoucherRow, error)

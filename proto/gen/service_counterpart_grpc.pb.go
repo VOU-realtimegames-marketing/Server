@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CounterpartService_CreateStore_FullMethodName         = "/vou.proto.CounterpartService/CreateStore"
-	CounterpartService_GetAllStoresOfOwner_FullMethodName = "/vou.proto.CounterpartService/GetAllStoresOfOwner"
-	CounterpartService_UpdateStore_FullMethodName         = "/vou.proto.CounterpartService/UpdateStore"
-	CounterpartService_DeleteStore_FullMethodName         = "/vou.proto.CounterpartService/DeleteStore"
-	CounterpartService_CreateBranch_FullMethodName        = "/vou.proto.CounterpartService/CreateBranch"
-	CounterpartService_GetBranchs_FullMethodName          = "/vou.proto.CounterpartService/GetBranchs"
-	CounterpartService_DeleteBranch_FullMethodName        = "/vou.proto.CounterpartService/DeleteBranch"
-	CounterpartService_GetCmsOverview_FullMethodName      = "/vou.proto.CounterpartService/GetCmsOverview"
-	CounterpartService_GetAdminCmsOverview_FullMethodName = "/vou.proto.CounterpartService/GetAdminCmsOverview"
-	CounterpartService_FakeCmsOverview_FullMethodName     = "/vou.proto.CounterpartService/FakeCmsOverview"
+	CounterpartService_CreateStore_FullMethodName           = "/vou.proto.CounterpartService/CreateStore"
+	CounterpartService_GetAllStoresOfOwner_FullMethodName   = "/vou.proto.CounterpartService/GetAllStoresOfOwner"
+	CounterpartService_UpdateStore_FullMethodName           = "/vou.proto.CounterpartService/UpdateStore"
+	CounterpartService_DeleteStore_FullMethodName           = "/vou.proto.CounterpartService/DeleteStore"
+	CounterpartService_CreateBranch_FullMethodName          = "/vou.proto.CounterpartService/CreateBranch"
+	CounterpartService_GetBranchs_FullMethodName            = "/vou.proto.CounterpartService/GetBranchs"
+	CounterpartService_DeleteBranch_FullMethodName          = "/vou.proto.CounterpartService/DeleteBranch"
+	CounterpartService_GetPartnerCmsOverview_FullMethodName = "/vou.proto.CounterpartService/GetPartnerCmsOverview"
+	CounterpartService_GetAdminCmsOverview_FullMethodName   = "/vou.proto.CounterpartService/GetAdminCmsOverview"
+	CounterpartService_FakeCmsOverview_FullMethodName       = "/vou.proto.CounterpartService/FakeCmsOverview"
 )
 
 // CounterpartServiceClient is the client API for CounterpartService service.
@@ -42,7 +42,7 @@ type CounterpartServiceClient interface {
 	CreateBranch(ctx context.Context, in *CreateBranchRequest, opts ...grpc.CallOption) (*CreateBranchResponse, error)
 	GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error)
 	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
-	GetCmsOverview(ctx context.Context, in *GetCmsOverviewRequest, opts ...grpc.CallOption) (*GetCmsOverviewResponse, error)
+	GetPartnerCmsOverview(ctx context.Context, in *GetPartnerCmsOverviewRequest, opts ...grpc.CallOption) (*GetPartnerCmsOverviewResponse, error)
 	GetAdminCmsOverview(ctx context.Context, in *GetAdminCmsOverviewRequest, opts ...grpc.CallOption) (*GetAdminCmsOverviewResponse, error)
 	FakeCmsOverview(ctx context.Context, in *FakeCmsOverviewRequest, opts ...grpc.CallOption) (*FakeCmsOverviewResponse, error)
 }
@@ -125,10 +125,10 @@ func (c *counterpartServiceClient) DeleteBranch(ctx context.Context, in *DeleteB
 	return out, nil
 }
 
-func (c *counterpartServiceClient) GetCmsOverview(ctx context.Context, in *GetCmsOverviewRequest, opts ...grpc.CallOption) (*GetCmsOverviewResponse, error) {
+func (c *counterpartServiceClient) GetPartnerCmsOverview(ctx context.Context, in *GetPartnerCmsOverviewRequest, opts ...grpc.CallOption) (*GetPartnerCmsOverviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetCmsOverviewResponse)
-	err := c.cc.Invoke(ctx, CounterpartService_GetCmsOverview_FullMethodName, in, out, cOpts...)
+	out := new(GetPartnerCmsOverviewResponse)
+	err := c.cc.Invoke(ctx, CounterpartService_GetPartnerCmsOverview_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ type CounterpartServiceServer interface {
 	CreateBranch(context.Context, *CreateBranchRequest) (*CreateBranchResponse, error)
 	GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error)
 	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
-	GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error)
+	GetPartnerCmsOverview(context.Context, *GetPartnerCmsOverviewRequest) (*GetPartnerCmsOverviewResponse, error)
 	GetAdminCmsOverview(context.Context, *GetAdminCmsOverviewRequest) (*GetAdminCmsOverviewResponse, error)
 	FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error)
 	mustEmbedUnimplementedCounterpartServiceServer()
@@ -200,8 +200,8 @@ func (UnimplementedCounterpartServiceServer) GetBranchs(context.Context, *GetBra
 func (UnimplementedCounterpartServiceServer) DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBranch not implemented")
 }
-func (UnimplementedCounterpartServiceServer) GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCmsOverview not implemented")
+func (UnimplementedCounterpartServiceServer) GetPartnerCmsOverview(context.Context, *GetPartnerCmsOverviewRequest) (*GetPartnerCmsOverviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPartnerCmsOverview not implemented")
 }
 func (UnimplementedCounterpartServiceServer) GetAdminCmsOverview(context.Context, *GetAdminCmsOverviewRequest) (*GetAdminCmsOverviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAdminCmsOverview not implemented")
@@ -356,20 +356,20 @@ func _CounterpartService_DeleteBranch_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CounterpartService_GetCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCmsOverviewRequest)
+func _CounterpartService_GetPartnerCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPartnerCmsOverviewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CounterpartServiceServer).GetCmsOverview(ctx, in)
+		return srv.(CounterpartServiceServer).GetPartnerCmsOverview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CounterpartService_GetCmsOverview_FullMethodName,
+		FullMethod: CounterpartService_GetPartnerCmsOverview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CounterpartServiceServer).GetCmsOverview(ctx, req.(*GetCmsOverviewRequest))
+		return srv.(CounterpartServiceServer).GetPartnerCmsOverview(ctx, req.(*GetPartnerCmsOverviewRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -446,8 +446,8 @@ var CounterpartService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CounterpartService_DeleteBranch_Handler,
 		},
 		{
-			MethodName: "GetCmsOverview",
-			Handler:    _CounterpartService_GetCmsOverview_Handler,
+			MethodName: "GetPartnerCmsOverview",
+			Handler:    _CounterpartService_GetPartnerCmsOverview_Handler,
 		},
 		{
 			MethodName: "GetAdminCmsOverview",

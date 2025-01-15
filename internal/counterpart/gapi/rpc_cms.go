@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOverviewRequest) (*gen.GetCmsOverviewResponse, error) {
+func (server *Server) GetPartnerCmsOverview(ctx context.Context, req *gen.GetPartnerCmsOverviewRequest) (*gen.GetPartnerCmsOverviewResponse, error) {
 	owner := req.GetOwner()
 	log.Print("GetCmsOverview_rpc_cms owner:", owner)
 
@@ -26,11 +26,14 @@ func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOvervie
 		return nil, status.Errorf(codes.Internal, "failed to get CMS overview: %s", err)
 	}
 
-	// Query chi tiết user chơi game
-	userPlayData, err := server.store.GetUserPlayByDate(ctx, owner)
+	// Query số lượng user chơi từng game theo ngày
+	userPlayData, err := server.store.GetUserPlayStatsByGameAndDate(ctx, owner)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get user play data: %s", err)
 	}
+
+	// Map
+	chartUserPlay := mapUserPlayData(userPlayData)
 
 	// Query danh sách user mới nhận voucher
 	recentUsers, err := server.store.GetRecentVoucherOwners(ctx, owner)
@@ -51,13 +54,13 @@ func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOvervie
 	}
 
 	// Map dữ liệu trả về FE
-	response := &gen.GetCmsOverviewResponse{
+	response := &gen.GetPartnerCmsOverviewResponse{
 		TotalStore:             int32(cmsData.TotalStore),
 		TotalBranch:            int32(cmsData.TotalBranch),
 		TotalEvent:             int32(cmsData.TotalEvent),
 		TotalUserPlay:          int32(cmsData.TotalUserPlay),
 		LastMonthTotalUserPlay: int32(cmsData.LastMonthTotalUserPlay),
-		ChartUserPlay:          mapUserPlayData(userPlayData),
+		ChartUserPlay:          chartUserPlay,
 		ListRecentUser:         mapRecentUsers(recentUsers),
 		ChartVoucher:           mapVoucherStats(voucherStats),
 		ChartUserStore:         mapUserStoreStats(userStoreStats),
@@ -65,35 +68,38 @@ func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOvervie
 
 	return response, nil
 }
+func mapUserPlayData(userPlayData []db.GetUserPlayStatsByGameAndDateRow) []*gen.UserPlayData {
+	// Sử dụng map để gom nhóm dữ liệu theo ngày
+	resultMap := make(map[int64]*gen.UserPlayData)
 
-func mapUserPlayData(data []db.GetUserPlayByDateRow) []*gen.UserPlayData {
-	result := []*gen.UserPlayData{}
-	for _, d := range data {
-		// Kiểm tra giá trị hợp lệ trong PlayDate
-		if !d.PlayDate.Valid {
-			log.Printf("Invalid PlayDate for record: %+v", d)
-			continue
+	for _, stat := range userPlayData {
+		// Lấy timestamp từ stat.Date
+		dateTimestamp := stat.PlayDate.Time.Unix()
+
+		// Nếu ngày chưa tồn tại trong map, khởi tạo entry mới
+		if _, exists := resultMap[dateTimestamp]; !exists {
+			resultMap[dateTimestamp] = &gen.UserPlayData{
+				Date:      dateTimestamp,
+				QuizGame:  0,
+				ShakeGame: 0,
+			}
 		}
 
-		// Lấy timestamp từ PlayDate
-		timestamp := d.PlayDate.Time.Unix()
-
-		// Phân loại game_type thành quizGame và shakeGame
-		if d.GameType == "quizGame" {
-			result = append(result, &gen.UserPlayData{
-				Date:      timestamp,
-				QuizGame:  int32(d.TotalUsers),
-				ShakeGame: 0,
-			})
-		} else if d.GameType == "shakeGame" {
-			result = append(result, &gen.UserPlayData{
-				Date:      timestamp,
-				QuizGame:  0,
-				ShakeGame: int32(d.TotalUsers),
-			})
+		// Cộng số lượng user vào game tương ứng
+		if stat.GameType == "quizGame" {
+			resultMap[dateTimestamp].QuizGame += int32(stat.TotalUsers) // Chuyển đổi sang int32
+		} else if stat.GameType == "shakeGame" {
+			resultMap[dateTimestamp].ShakeGame += int32(stat.TotalUsers) // Chuyển đổi sang int32
 		}
 	}
-	return result
+
+	// Chuyển map thành slice để trả về
+	chartData := make([]*gen.UserPlayData, 0, len(resultMap))
+	for _, data := range resultMap {
+		chartData = append(chartData, data)
+	}
+
+	return chartData
 }
 
 func mapRecentUsers(data []db.GetRecentVoucherOwnersRow) []*gen.RecentUser {

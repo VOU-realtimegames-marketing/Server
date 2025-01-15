@@ -98,9 +98,9 @@ service Gateway {
       body: "*"
     };
   }
-  rpc GetCmsOverview(GetCmsOverviewRequest) returns (GetCmsOverviewResponse) {
+  rpc GetPartnerCmsOverview(GetPartnerCmsOverviewRequest) returns (GetPartnerCmsOverviewResponse) {
     option (google.api.http) = {
-      get: "/api/v1/cms/overview"
+      get: "/api/v1/cms/partner-overview"
     };
   }
   rpc FakeCmsOverview(FakeCmsOverviewRequest) returns (FakeCmsOverviewResponse) {

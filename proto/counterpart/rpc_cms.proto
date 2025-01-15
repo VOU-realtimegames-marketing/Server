@@ -5,7 +5,7 @@ package vou.proto;
 option go_package = "VOU-Server/proto/gen";
 
 message UserPlayData {
-    int64 date = 1;         // Ngày chơi game
+    int64 date = 1;         // Ngày chơi game (timestamp)
     int32 quiz_game = 2;     // Số lượng user chơi quizGame
     int32 shake_game = 3;    // Số lượng user chơi shakeGame
 }
@@ -30,11 +30,11 @@ message UserStoreStats {
     int32 total_user_play = 3; // Tổng số user chơi tại cửa hàng
 }
 
-message GetCmsOverviewRequest {
+message GetPartnerCmsOverviewRequest {
     string owner = 1;        // Owner của CMS
 }
 
-message GetCmsOverviewResponse {
+message GetPartnerCmsOverviewResponse {
     int32 total_store = 1;       // Tổng số cửa hàng
     int32 total_branch = 2;      // Tổng số chi nhánh
     int32 total_event = 3;       // Tổng số sự kiện

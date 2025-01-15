@@ -742,47 +742,6 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUs
 	return i, err
 }
 
-const getUserPlayByDate = `-- name: GetUserPlayByDate :many
-SELECT 
-    DATE(vo.created_at) AS play_date,
-    g.type AS game_type,
-    COUNT(DISTINCT vo.username) AS total_users
-FROM voucher_owner vo
-JOIN vouchers v ON vo.voucher_id = v.id
-JOIN events e ON v.event_id = e.id
-JOIN games g ON e.game_id = g.id
-WHERE e.owner = $1
-  AND vo.created_at >= NOW() - INTERVAL '2 MONTHS'
-GROUP BY play_date, game_type
-ORDER BY play_date, game_type
-`
-
-type GetUserPlayByDateRow struct {
-	PlayDate   pgtype.Date `json:"play_date"`
-	GameType   string      `json:"game_type"`
-	TotalUsers int64       `json:"total_users"`
-}
-
-func (q *Queries) GetUserPlayByDate(ctx context.Context, owner string) ([]GetUserPlayByDateRow, error) {
-	rows, err := q.db.Query(ctx, getUserPlayByDate, owner)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetUserPlayByDateRow{}
-	for rows.Next() {
-		var i GetUserPlayByDateRow
-		if err := rows.Scan(&i.PlayDate, &i.GameType, &i.TotalUsers); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getUserPlayCountByPartner = `-- name: GetUserPlayCountByPartner :many
     -- (SELECT COUNT(*) FROM branchs WHERE created_at >= NOW() - INTERVAL '1 MONTH') AS total_branch_last_month;
 
@@ -861,6 +820,74 @@ func (q *Queries) GetUserPlayStats(ctx context.Context) ([]GetUserPlayStatsRow, 
 	for rows.Next() {
 		var i GetUserPlayStatsRow
 		if err := rows.Scan(&i.Month, &i.QuizGame, &i.ShakeGame); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserPlayStatsByGameAndDate = `-- name: GetUserPlayStatsByGameAndDate :many
+
+
+WITH partner_events AS (
+    SELECT e.id AS event_id, e.game_id
+    FROM events e
+    WHERE e.owner = $1 -- Replace $1 with the input partner username
+),
+partner_vouchers AS (
+    SELECT v.id AS voucher_id, pe.game_id
+    FROM vouchers v
+    JOIN partner_events pe ON v.event_id = pe.event_id
+),
+user_play_stats AS (
+    SELECT 
+        vo.created_at::date AS play_date, 
+        pv.game_id, 
+        COUNT(DISTINCT vo.username) AS total_users
+    FROM voucher_owner vo
+    JOIN partner_vouchers pv ON vo.voucher_id = pv.voucher_id
+    GROUP BY vo.created_at::date, pv.game_id
+)
+SELECT 
+    play_date,
+    CASE 
+        WHEN game_id = 1 THEN 'quizGame'
+        WHEN game_id = 2 THEN 'shakeGame'
+        ELSE 'unknownGame'
+    END AS game_type,
+    total_users
+FROM user_play_stats
+ORDER BY play_date, game_type
+`
+
+type GetUserPlayStatsByGameAndDateRow struct {
+	PlayDate   pgtype.Date `json:"play_date"`
+	GameType   string      `json:"game_type"`
+	TotalUsers int64       `json:"total_users"`
+}
+
+// Description: Count số lượng user chơi game quizGame và shakeGame theo từng ngày của 1 Partner.
+// input: partner username, var owner = "partner_01"
+// flow:
+//
+//	Từ owner, tìm tất cả events có event.owner = owner = "partner_01", groupby "event.game_id" (game_id 1 là quizGame, game_id 2 là shakeGame)
+//	Với mỗi list events group by game_id, ví dụ từ list events có game_id = 1 (quizGame), tiếp tục query tất cả "vouchers" có voucher.event_id nằm trong list events id trên, kết quả sẽ ra được list vouchers của game_id =1 thuộc owner="partner_01). Tương tự list events của các game_id còn lại
+//	Từ list vouchers đã query (của từng game_id) tiếp tục query table "voucher_owner" với voucher_owner.voucher_id nằm trong list vouchers id trên, group by từng ngày bởi field "voucher_owner.created_at", định dạng "YYYY-MM-dd". Kết quả sẽ ra được list voucher_owner thuộc từng thể loại game_id theo từng ngày
+//	Tổng hợp tất cả  voucher_owner từ các vouchers trên, distinct by username, sẽ ra được số lượng user chơi game_id đó theo từng ngày
+func (q *Queries) GetUserPlayStatsByGameAndDate(ctx context.Context, owner string) ([]GetUserPlayStatsByGameAndDateRow, error) {
+	rows, err := q.db.Query(ctx, getUserPlayStatsByGameAndDate, owner)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUserPlayStatsByGameAndDateRow{}
+	for rows.Next() {
+		var i GetUserPlayStatsByGameAndDateRow
+		if err := rows.Scan(&i.PlayDate, &i.GameType, &i.TotalUsers); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

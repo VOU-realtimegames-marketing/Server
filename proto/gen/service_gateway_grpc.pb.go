@@ -19,27 +19,27 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Gateway_CreateUser_FullMethodName          = "/vou.proto.Gateway/CreateUser"
-	Gateway_LoginUser_FullMethodName           = "/vou.proto.Gateway/LoginUser"
-	Gateway_AuthorizeUser_FullMethodName       = "/vou.proto.Gateway/AuthorizeUser"
-	Gateway_RenewAccessToken_FullMethodName    = "/vou.proto.Gateway/RenewAccessToken"
-	Gateway_VerifyEmail_FullMethodName         = "/vou.proto.Gateway/VerifyEmail"
-	Gateway_CreateStore_FullMethodName         = "/vou.proto.Gateway/CreateStore"
-	Gateway_GetAllStoresOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllStoresOfOwner"
-	Gateway_UpdateStore_FullMethodName         = "/vou.proto.Gateway/UpdateStore"
-	Gateway_DeleteStore_FullMethodName         = "/vou.proto.Gateway/DeleteStore"
-	Gateway_CreateBranch_FullMethodName        = "/vou.proto.Gateway/CreateBranch"
-	Gateway_GetBranchs_FullMethodName          = "/vou.proto.Gateway/GetBranchs"
-	Gateway_DeleteBranch_FullMethodName        = "/vou.proto.Gateway/DeleteBranch"
-	Gateway_GetCmsOverview_FullMethodName      = "/vou.proto.Gateway/GetCmsOverview"
-	Gateway_FakeCmsOverview_FullMethodName     = "/vou.proto.Gateway/FakeCmsOverview"
-	Gateway_GetAdminCmsOverview_FullMethodName = "/vou.proto.Gateway/GetAdminCmsOverview"
-	Gateway_CreateEvent_FullMethodName         = "/vou.proto.Gateway/CreateEvent"
-	Gateway_GetAllEvents_FullMethodName        = "/vou.proto.Gateway/GetAllEvents"
-	Gateway_GetAllEventsOfOwner_FullMethodName = "/vou.proto.Gateway/GetAllEventsOfOwner"
-	Gateway_GetEventById_FullMethodName        = "/vou.proto.Gateway/GetEventById"
-	Gateway_UpdateEventStatus_FullMethodName   = "/vou.proto.Gateway/UpdateEventStatus"
-	Gateway_GetQuizzesByEventId_FullMethodName = "/vou.proto.Gateway/GetQuizzesByEventId"
+	Gateway_CreateUser_FullMethodName            = "/vou.proto.Gateway/CreateUser"
+	Gateway_LoginUser_FullMethodName             = "/vou.proto.Gateway/LoginUser"
+	Gateway_AuthorizeUser_FullMethodName         = "/vou.proto.Gateway/AuthorizeUser"
+	Gateway_RenewAccessToken_FullMethodName      = "/vou.proto.Gateway/RenewAccessToken"
+	Gateway_VerifyEmail_FullMethodName           = "/vou.proto.Gateway/VerifyEmail"
+	Gateway_CreateStore_FullMethodName           = "/vou.proto.Gateway/CreateStore"
+	Gateway_GetAllStoresOfOwner_FullMethodName   = "/vou.proto.Gateway/GetAllStoresOfOwner"
+	Gateway_UpdateStore_FullMethodName           = "/vou.proto.Gateway/UpdateStore"
+	Gateway_DeleteStore_FullMethodName           = "/vou.proto.Gateway/DeleteStore"
+	Gateway_CreateBranch_FullMethodName          = "/vou.proto.Gateway/CreateBranch"
+	Gateway_GetBranchs_FullMethodName            = "/vou.proto.Gateway/GetBranchs"
+	Gateway_DeleteBranch_FullMethodName          = "/vou.proto.Gateway/DeleteBranch"
+	Gateway_GetPartnerCmsOverview_FullMethodName = "/vou.proto.Gateway/GetPartnerCmsOverview"
+	Gateway_FakeCmsOverview_FullMethodName       = "/vou.proto.Gateway/FakeCmsOverview"
+	Gateway_GetAdminCmsOverview_FullMethodName   = "/vou.proto.Gateway/GetAdminCmsOverview"
+	Gateway_CreateEvent_FullMethodName           = "/vou.proto.Gateway/CreateEvent"
+	Gateway_GetAllEvents_FullMethodName          = "/vou.proto.Gateway/GetAllEvents"
+	Gateway_GetAllEventsOfOwner_FullMethodName   = "/vou.proto.Gateway/GetAllEventsOfOwner"
+	Gateway_GetEventById_FullMethodName          = "/vou.proto.Gateway/GetEventById"
+	Gateway_UpdateEventStatus_FullMethodName     = "/vou.proto.Gateway/UpdateEventStatus"
+	Gateway_GetQuizzesByEventId_FullMethodName   = "/vou.proto.Gateway/GetQuizzesByEventId"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -60,7 +60,7 @@ type GatewayClient interface {
 	CreateBranch(ctx context.Context, in *CreateBranchRequest, opts ...grpc.CallOption) (*CreateBranchResponse, error)
 	GetBranchs(ctx context.Context, in *GetBranchsRequest, opts ...grpc.CallOption) (*GetBranchsResponse, error)
 	DeleteBranch(ctx context.Context, in *DeleteBranchRequest, opts ...grpc.CallOption) (*DeleteBranchResponse, error)
-	GetCmsOverview(ctx context.Context, in *GetCmsOverviewRequest, opts ...grpc.CallOption) (*GetCmsOverviewResponse, error)
+	GetPartnerCmsOverview(ctx context.Context, in *GetPartnerCmsOverviewRequest, opts ...grpc.CallOption) (*GetPartnerCmsOverviewResponse, error)
 	FakeCmsOverview(ctx context.Context, in *FakeCmsOverviewRequest, opts ...grpc.CallOption) (*FakeCmsOverviewResponse, error)
 	GetAdminCmsOverview(ctx context.Context, in *GetAdminCmsOverviewRequest, opts ...grpc.CallOption) (*GetAdminCmsOverviewResponse, error)
 	// BEGIN EVENT-QUIZ
@@ -200,10 +200,10 @@ func (c *gatewayClient) DeleteBranch(ctx context.Context, in *DeleteBranchReques
 	return out, nil
 }
 
-func (c *gatewayClient) GetCmsOverview(ctx context.Context, in *GetCmsOverviewRequest, opts ...grpc.CallOption) (*GetCmsOverviewResponse, error) {
+func (c *gatewayClient) GetPartnerCmsOverview(ctx context.Context, in *GetPartnerCmsOverviewRequest, opts ...grpc.CallOption) (*GetPartnerCmsOverviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetCmsOverviewResponse)
-	err := c.cc.Invoke(ctx, Gateway_GetCmsOverview_FullMethodName, in, out, cOpts...)
+	out := new(GetPartnerCmsOverviewResponse)
+	err := c.cc.Invoke(ctx, Gateway_GetPartnerCmsOverview_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ type GatewayServer interface {
 	CreateBranch(context.Context, *CreateBranchRequest) (*CreateBranchResponse, error)
 	GetBranchs(context.Context, *GetBranchsRequest) (*GetBranchsResponse, error)
 	DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error)
-	GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error)
+	GetPartnerCmsOverview(context.Context, *GetPartnerCmsOverviewRequest) (*GetPartnerCmsOverviewResponse, error)
 	FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error)
 	GetAdminCmsOverview(context.Context, *GetAdminCmsOverviewRequest) (*GetAdminCmsOverviewResponse, error)
 	// BEGIN EVENT-QUIZ
@@ -364,8 +364,8 @@ func (UnimplementedGatewayServer) GetBranchs(context.Context, *GetBranchsRequest
 func (UnimplementedGatewayServer) DeleteBranch(context.Context, *DeleteBranchRequest) (*DeleteBranchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBranch not implemented")
 }
-func (UnimplementedGatewayServer) GetCmsOverview(context.Context, *GetCmsOverviewRequest) (*GetCmsOverviewResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCmsOverview not implemented")
+func (UnimplementedGatewayServer) GetPartnerCmsOverview(context.Context, *GetPartnerCmsOverviewRequest) (*GetPartnerCmsOverviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPartnerCmsOverview not implemented")
 }
 func (UnimplementedGatewayServer) FakeCmsOverview(context.Context, *FakeCmsOverviewRequest) (*FakeCmsOverviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FakeCmsOverview not implemented")
@@ -628,20 +628,20 @@ func _Gateway_DeleteBranch_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Gateway_GetCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCmsOverviewRequest)
+func _Gateway_GetPartnerCmsOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPartnerCmsOverviewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GatewayServer).GetCmsOverview(ctx, in)
+		return srv.(GatewayServer).GetPartnerCmsOverview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Gateway_GetCmsOverview_FullMethodName,
+		FullMethod: Gateway_GetPartnerCmsOverview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GatewayServer).GetCmsOverview(ctx, req.(*GetCmsOverviewRequest))
+		return srv.(GatewayServer).GetPartnerCmsOverview(ctx, req.(*GetPartnerCmsOverviewRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -846,8 +846,8 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Gateway_DeleteBranch_Handler,
 		},
 		{
-			MethodName: "GetCmsOverview",
-			Handler:    _Gateway_GetCmsOverview_Handler,
+			MethodName: "GetPartnerCmsOverview",
+			Handler:    _Gateway_GetPartnerCmsOverview_Handler,
 		},
 		{
 			MethodName: "FakeCmsOverview",

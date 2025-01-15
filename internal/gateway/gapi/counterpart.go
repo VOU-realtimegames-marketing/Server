@@ -116,7 +116,7 @@ func (server *Server) DeleteBranch(ctx context.Context, req *gen.DeleteBranchReq
 	return server.counterpartClient.DeleteBranch(ctx, req)
 }
 
-func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOverviewRequest) (*gen.GetCmsOverviewResponse, error) {
+func (server *Server) GetPartnerCmsOverview(ctx context.Context, req *gen.GetPartnerCmsOverviewRequest) (*gen.GetPartnerCmsOverviewResponse, error) {
 	res, err := server.AuthorizeUser(ctx, &gen.AuthorizeRequest{})
 	if err != nil || res == nil || res.User == nil {
 		log.Printf("GetCmsOverview: Authorization failed or user not found: %v", err)
@@ -130,7 +130,7 @@ func (server *Server) GetCmsOverview(ctx context.Context, req *gen.GetCmsOvervie
 	req.Owner = res.User.Username
 	log.Print("GetCmsOverview_counterpart Owner: ", req.Owner)
 
-	return server.counterpartClient.GetCmsOverview(ctx, req)
+	return server.counterpartClient.GetPartnerCmsOverview(ctx, req)
 }
 
 func (server *Server) GetAdminCmsOverview(ctx context.Context, req *gen.GetAdminCmsOverviewRequest) (*gen.GetAdminCmsOverviewResponse, error) {
