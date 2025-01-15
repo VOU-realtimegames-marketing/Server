@@ -104,7 +104,7 @@ func (server *Server) AnswerQuestion(stream grpc.BidiStreamingServer[gen.AnswerQ
 
 			if err != nil {
 				if errors.Is(err, db.ErrRecordNotFound) {
-					_, err = server.store.CreateUserAnswer(streamCtx, db.CreateUserAnswerParams{
+					userAnswer, err = server.store.CreateUserAnswer(streamCtx, db.CreateUserAnswerParams{
 						EventID:  eventId,
 						Username: username,
 					})
