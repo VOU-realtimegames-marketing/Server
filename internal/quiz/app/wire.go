@@ -12,11 +12,11 @@ import (
 	pkgPublisher "VOU-Server/pkg/rabbitmq/publisher"
 	"context"
 
-	"github.com/google/generative-ai-go/genai"
 	"github.com/google/wire"
 	"github.com/jackc/pgx/v5/pgxpool"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/genai"
 )
 
 func InitApp(
@@ -59,5 +59,5 @@ func genAIFunc(apiKey llms.LLMApiKey) (*genai.Client, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return client, func() { client.Close() }, nil
+	return client, func() {}, nil
 }

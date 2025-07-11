@@ -1,5 +1,7 @@
 package task
 
+import "google.golang.org/genai"
+
 type PayloadGenQuiz struct {
 	QuizGenre string `json:"quiz_genre"`
 	EventId   int64  `json:"event_id"`
@@ -15,6 +17,25 @@ type Quiz struct {
 	Question string   `json:"question"`
 	Answer   string   `json:"answer"`
 	Options  []string `json:"options"`
+}
+
+var ConfigGenQuiz = &genai.GenerateContentConfig{
+	ResponseMIMEType: "application/json",
+	ResponseSchema: &genai.Schema{
+		Type: genai.TypeArray,
+		Items: &genai.Schema{
+			Type: genai.TypeObject,
+			Properties: map[string]*genai.Schema{
+				"question": {Type: genai.TypeString},
+				"answer":   {Type: genai.TypeString},
+				"options": {
+					Type:  genai.TypeArray,
+					Items: &genai.Schema{Type: genai.TypeString},
+				},
+			},
+			Required: []string{"question", "answer", "options"},
+		},
+	},
 }
 
 const QuizGeneratePrompt = `

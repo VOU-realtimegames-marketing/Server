@@ -9,10 +9,10 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/google/generative-ai-go/genai"
 	"github.com/rabbitmq/amqp091-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/genai"
 )
 
 type App struct {

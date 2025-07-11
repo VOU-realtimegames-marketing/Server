@@ -4,36 +4,45 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/generative-ai-go/genai"
 	"github.com/google/wire"
-	"google.golang.org/api/option"
+	"google.golang.org/genai"
 )
 
 var GeminiSet = wire.NewSet(NewGemini)
 
 func NewGenerativeAIClient(ctx context.Context, geminiApiKey LLMApiKey) (*genai.Client, error) {
-	client, err := genai.NewClient(ctx, option.WithAPIKey(string(geminiApiKey)))
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey:  string(geminiApiKey),
+		Backend: genai.BackendGeminiAPI,
+	})
 	return client, err
 }
 
 type Gemini struct {
-	model *genai.GenerativeModel
+	model     *genai.Models
+	modelName string
 }
 
 func NewGemini(genAIClient *genai.Client) GenAI {
-	modelName := "gemini-1.5-flash"
-	model := genAIClient.GenerativeModel(modelName)
+	modelName := "gemini-2.0-flash"
+	model := genAIClient.Models
 	return &Gemini{
-		model: model,
+		model:     model,
+		modelName: modelName,
 	}
 }
 
-func (g *Gemini) GenerateContent(ctx context.Context, prompt string) (string, error) {
-	fmt.Println("Generated content:")
-	resp, err := g.model.GenerateContent(ctx, genai.Text(prompt))
+func (g *Gemini) GenerateContent(ctx context.Context, prompt string, config any) (string, error) {
+
+	cfg, ok := config.(*genai.GenerateContentConfig)
+	if !ok {
+		return "", fmt.Errorf("invalid config type: %T", config)
+	}
+
+	resp, err := g.model.GenerateContent(ctx, g.modelName, genai.Text(prompt), cfg)
 	if err != nil {
 		return "", err
 	}
 
-	return fmt.Sprint(resp.Candidates[0].Content.Parts[0]), nil
+	return resp.Text(), nil
 }

@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/google/wire"
 	"github.com/pkg/errors"
@@ -41,19 +40,23 @@ func (h *quizGenHandler) Handle(ctx context.Context, payload task.PayloadGenQuiz
 	quizzesStr, err := h.gemini.GenerateContent(
 		ctx,
 		fmt.Sprintf(task.QuizGeneratePrompt, payload.QuizNum, payload.QuizGenre),
+		task.ConfigGenQuiz,
 	)
-	jsonStr := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(quizzesStr, "```json"), "```\n"))
-	fmt.Println("jsonStr: ", jsonStr)
+	if err != nil {
+		return errors.Wrap(err, "gemini.GenerateContent")
+	}
 
 	var quizzes []task.Quiz
-	err = json.Unmarshal([]byte(jsonStr), &quizzes)
-	fmt.Println("quizzes: ", quizzes)
+	err = json.Unmarshal([]byte(quizzesStr), &quizzes)
+	if err != nil {
+		return errors.Wrap(err, "json.Unmarshal")
+	}
 
 	arg := db.CreateQuizTxParams{
 		CreateQuizParams: db.CreateQuizParams{
 			EventID:   payload.EventId,
 			QuizGenre: payload.QuizGenre,
-			Content:   []byte(jsonStr),
+			Content:   []byte(quizzesStr),
 			QuizNum:   payload.QuizNum,
 		},
 		AfterCreate: func(quiz db.Quiz) error {
